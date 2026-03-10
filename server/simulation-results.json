@@ -1,0 +1,1121 @@
+{
+  "timestamp": "2026-03-10T11:44:54.765Z",
+  "summary": {
+    "total": 91,
+    "low": 75,
+    "medium": 15,
+    "high": 1
+  },
+  "metrics": {
+    "accuracy": "72.5",
+    "tpr": "9.1",
+    "fpr": "18.8",
+    "precision": "6.3",
+    "recall": "9.1",
+    "TP": 1,
+    "FP": 15,
+    "TN": 65,
+    "FN": 10
+  },
+  "avgScore": "15.7",
+  "minScore": 0,
+  "maxScore": 65,
+  "sessions": [
+    {
+      "session": 1,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 17
+    },
+    {
+      "session": 2,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 16
+    },
+    {
+      "session": 6,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 17
+    },
+    {
+      "session": 3,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 21
+    },
+    {
+      "session": 9,
+      "type": "normal",
+      "riskScore": 40,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 13
+    },
+    {
+      "session": 8,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 6
+    },
+    {
+      "session": 10,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 18
+    },
+    {
+      "session": 4,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 20
+    },
+    {
+      "session": 5,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 18
+    },
+    {
+      "session": 7,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 10
+    },
+    {
+      "session": 11,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 6
+    },
+    {
+      "session": 12,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 20
+    },
+    {
+      "session": 18,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 9
+    },
+    {
+      "session": 17,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 9
+    },
+    {
+      "session": 16,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 8
+    },
+    {
+      "session": 15,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 12
+    },
+    {
+      "session": 14,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 7
+    },
+    {
+      "session": 19,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 21
+    },
+    {
+      "session": 13,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 11
+    },
+    {
+      "session": 20,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 6
+    },
+    {
+      "session": 21,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 19
+    },
+    {
+      "session": 24,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 17
+    },
+    {
+      "session": 22,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 15
+    },
+    {
+      "session": 23,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 19
+    },
+    {
+      "session": 25,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 13
+    },
+    {
+      "session": 27,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 9
+    },
+    {
+      "session": 30,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 12
+    },
+    {
+      "session": 26,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 16
+    },
+    {
+      "session": 29,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 21
+    },
+    {
+      "session": 28,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 20
+    },
+    {
+      "session": 31,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 14
+    },
+    {
+      "session": 32,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 17
+    },
+    {
+      "session": 33,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 14
+    },
+    {
+      "session": 34,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 18
+    },
+    {
+      "session": 39,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 19
+    },
+    {
+      "session": 35,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 11
+    },
+    {
+      "session": 38,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 16
+    },
+    {
+      "session": 40,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 20
+    },
+    {
+      "session": 37,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 13
+    },
+    {
+      "session": 36,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 6
+    },
+    {
+      "session": 41,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 6
+    },
+    {
+      "session": 42,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 11
+    },
+    {
+      "session": 50,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 9
+    },
+    {
+      "session": 45,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 10
+    },
+    {
+      "session": 48,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 12
+    },
+    {
+      "session": 46,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 10
+    },
+    {
+      "session": 44,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 21
+    },
+    {
+      "session": 43,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 18
+    },
+    {
+      "session": 49,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 13
+    },
+    {
+      "session": 47,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 8
+    },
+    {
+      "session": 51,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 19
+    },
+    {
+      "session": 54,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 14
+    },
+    {
+      "session": 53,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 13
+    },
+    {
+      "session": 52,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 6
+    },
+    {
+      "session": 55,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 20
+    },
+    {
+      "session": 57,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 8
+    },
+    {
+      "session": 59,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 14
+    },
+    {
+      "session": 56,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 16
+    },
+    {
+      "session": 58,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 18
+    },
+    {
+      "session": 60,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_xy",
+      "hour": 7
+    },
+    {
+      "session": 61,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 16
+    },
+    {
+      "session": 64,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 16
+    },
+    {
+      "session": 62,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 13
+    },
+    {
+      "session": 63,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 17
+    },
+    {
+      "session": 66,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 10
+    },
+    {
+      "session": 69,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 16
+    },
+    {
+      "session": 68,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 17
+    },
+    {
+      "session": 70,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 9
+    },
+    {
+      "session": 67,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 7
+    },
+    {
+      "session": 65,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 20
+    },
+    {
+      "session": 71,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 8
+    },
+    {
+      "session": 74,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 7
+    },
+    {
+      "session": 73,
+      "type": "normal",
+      "riskScore": 40,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 15
+    },
+    {
+      "session": 72,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 11
+    },
+    {
+      "session": 76,
+      "type": "normal",
+      "riskScore": 40,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "abnormal_usage"
+      ],
+      "ip": "10.0.0.5",
+      "device": "dev_known_ab",
+      "hour": 12
+    },
+    {
+      "session": 75,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.101",
+      "device": "dev_known_ab",
+      "hour": 9
+    },
+    {
+      "session": 78,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 6
+    },
+    {
+      "session": 77,
+      "type": "normal",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.101",
+      "device": "dev_known_xy",
+      "hour": 14
+    },
+    {
+      "session": 79,
+      "type": "normal",
+      "riskScore": 60,
+      "riskLevel": "medium",
+      "recommendation": "step_up",
+      "factors": [
+        "unusual_time",
+        "abnormal_usage"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 11
+    },
+    {
+      "session": 80,
+      "type": "normal",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 10
+    },
+    {
+      "session": 82,
+      "type": "medium",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 2
+    },
+    {
+      "session": 89,
+      "type": "medium",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 20
+    },
+    {
+      "session": 88,
+      "type": "medium",
+      "riskScore": 20,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "unusual_time"
+      ],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 9
+    },
+    {
+      "session": 84,
+      "type": "medium",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_ab",
+      "hour": 19
+    },
+    {
+      "session": 90,
+      "type": "medium",
+      "riskScore": 25,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "new_ip"
+      ],
+      "ip": "99.254.161.8",
+      "device": "dev_known_xy",
+      "hour": 0
+    },
+    {
+      "session": 83,
+      "type": "medium",
+      "riskScore": 25,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "new_ip"
+      ],
+      "ip": "16.96.242.78",
+      "device": "dev_known_xy",
+      "hour": 15
+    },
+    {
+      "session": 85,
+      "type": "medium",
+      "riskScore": 25,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "new_ip"
+      ],
+      "ip": "69.0.33.6",
+      "device": "dev_known_ab",
+      "hour": 23
+    },
+    {
+      "session": 86,
+      "type": "medium",
+      "riskScore": 65,
+      "riskLevel": "high",
+      "recommendation": "block",
+      "factors": [
+        "new_ip",
+        "abnormal_usage"
+      ],
+      "ip": "116.160.142.84",
+      "device": "dev_known_ab",
+      "hour": 0
+    },
+    {
+      "session": 81,
+      "type": "medium",
+      "riskScore": 25,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "new_ip"
+      ],
+      "ip": "42.114.107.144",
+      "device": "dev_known_xy",
+      "hour": 23
+    },
+    {
+      "session": 87,
+      "type": "medium",
+      "riskScore": 25,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [
+        "new_ip"
+      ],
+      "ip": "186.243.137.58",
+      "device": "dev_known_xy",
+      "hour": 0
+    },
+    {
+      "session": 91,
+      "type": "medium",
+      "riskScore": 0,
+      "riskLevel": "low",
+      "recommendation": "allow",
+      "factors": [],
+      "ip": "192.168.1.100",
+      "device": "dev_known_xy",
+      "hour": 13
+    }
+  ]
+}

@@ -1,0 +1,670 @@
+================================================================================
+        ZERO TRUST CLOUD SYSTEM (ZTCS) — PROJECT PRESENTATION GUIDE
+================================================================================
+
+  Department of Cyber Security, Malla Reddy University
+  Domain: www.ztcs.app
+
+================================================================================
+  TABLE OF CONTENTS
+================================================================================
+
+  1.  Project Overview
+  2.  Problem Statement & Motivation
+  3.  System Architecture
+  4.  Zero Trust Access Flow
+  5.  UEBA Risk Scoring Engine
+  6.  Step-Up Authentication
+  7.  Per-Device Session Isolation
+  8.  File Management & Access Gates
+  9.  Real-Time Monitoring & Admin Dashboard
+  10. Cloudflare DNS & CDN Integration
+  11. Tech Stack Breakdown
+  12. Security Layers Summary
+  13. Deployment Architecture
+  14. Key Metrics & Numbers
+  15. How to Demo / Present
+
+================================================================================
+  1. PROJECT OVERVIEW
+================================================================================
+
+ZTCS (Zero Trust Cloud System) is a cloud-based file storage platform built
+on Zero Trust Architecture principles. Unlike traditional systems that trust
+users once they log in, ZTCS continuously evaluates every single request
+using User & Entity Behavior Analytics (UEBA).
+
+Core Philosophy:
+  "Never trust, always verify."
+
+Every file upload, download, or access attempt is scored for risk in
+real-time. If anomalous behavior is detected — like logging in from a new
+country, an unfamiliar device, or at an unusual hour — the system
+dynamically enforces step-up authentication or blocks the session entirely.
+
+
+================================================================================
+  2. PROBLEM STATEMENT & MOTIVATION
+================================================================================
+
+Traditional cloud storage relies on perimeter-based security:
+  - Log in once with credentials → full access granted
+  - No continuous verification
+  - Stolen credentials = complete compromise
+  - No behavioral context in access decisions
+
+ZTCS solves this by:
+  - Evaluating EVERY request independently (Zero Trust)
+  - Scoring user behavior against a learned baseline (UEBA)
+  - Requiring additional authentication when risk is elevated (Step-Up)
+  - Isolating sessions per device (compromised phone ≠ compromised laptop)
+  - Providing real-time admin visibility into all security events
+
+
+================================================================================
+  3. SYSTEM ARCHITECTURE
+================================================================================
+
+ZTCS is a microservices architecture with three independent services:
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                     CLOUDFLARE CDN/DNS                      │
+  │              DDoS Protection, SSL Termination               │
+  └──────────┬──────────────────┬──────────────────┬────────────┘
+             │                  │                  │
+    ztcs.app (CNAME)   api.ztcs.app (CNAME)  ueba.ztcs.app (CNAME)
+             │                  │                  │
+  ┌──────────▼──────┐  ┌───────▼────────┐  ┌──────▼──────────┐
+  │   FRONTEND      │  │    BACKEND     │  │   UEBA ENGINE   │
+  │   React 18      │  │  Node/Express  │  │  Python/FastAPI  │
+  │   Vite + SPA    │  │  REST + WS     │  │  Risk Scoring    │
+  │   Vercel        │  │  Render        │  │  Render          │
+  └─────────────────┘  └───────┬────────┘  └──────────────────┘
+                               │
+                    ┌──────────┼──────────┐
+                    │          │          │
+             ┌──────▼───┐ ┌───▼────┐ ┌───▼──────┐
+             │ MongoDB  │ │ Redis  │ │ Supabase │
+             │ Atlas    │ │Upstash │ │ Storage  │
+             │(Database)│ │(Cache) │ │ (Files)  │
+             └──────────┘ └────────┘ └──────────┘
+
+Data Flow:
+  1. User opens ztcs.app → Cloudflare routes to Vercel (React app)
+  2. React app makes API calls to api.ztcs.app → Cloudflare routes to Render (Node.js)
+  3. Node.js backend calls ueba.ztcs.app → Cloudflare routes to Render (Python)
+  4. Python UEBA engine analyzes behavior and returns risk score
+  5. Backend enforces access decision based on score
+
+
+================================================================================
+  4. ZERO TRUST ACCESS FLOW
+================================================================================
+
+Every protected request passes through the Access Gateway middleware.
+This is the heart of Zero Trust enforcement.
+
+  ┌──────────────┐
+  │  User Request │
+  └──────┬───────┘
+         │
+  ┌──────▼───────────────────┐
+  │  1. IP Blacklist Check   │──── BLOCKED? → 403 Forbidden
+  └──────┬───────────────────┘
+         │
+  ┌──────▼───────────────────┐
+  │  2. IP Whitelist Check   │──── TRUSTED? → Skip step-up
+  └──────┬───────────────────┘
+         │
+  ┌──────▼───────────────────┐
+  │  3. Device Trust Check   │──── TRUSTED (30-day TTL)? → Allow
+  └──────┬───────────────────┘
+         │
+  ┌──────▼───────────────────┐
+  │  4. UEBA Risk Scoring    │
+  │  (Calls Python service)  │
+  └──────┬───────────────────┘
+         │
+    ┌────┼────────────┐
+    │    │            │
+  LOW  MEDIUM      HIGH
+  0-30  31-60       >60
+    │    │            │
+  Allow  Step-Up    Block
+         Required   (device only)
+
+Key Points to Present:
+  - No request is implicitly trusted — even after login
+  - The Access Gateway sits between authentication and resource access
+  - Risk scores are cached per-device with adaptive TTLs:
+      Low risk  → 15-minute cache (don't re-check too often)
+      Medium    → 5-minute cache  (check more frequently)
+      High      → no cache        (immediate block)
+  - If the UEBA service is unavailable, the system FAILS CLOSED
+    (requires full step-up authentication — never silently allows)
+
+
+================================================================================
+  5. UEBA RISK SCORING ENGINE
+================================================================================
+
+The UEBA (User & Entity Behavior Analytics) engine is a separate Python
+microservice that analyzes user behavior against their historical baseline.
+
+RISK FORMULA:
+  ┌────────────────────────────────────────────────────────┐
+  │  R = 25·V1 + 30·V2 + 15·V2b + 20·V3 + 40·V4         │
+  └────────────────────────────────────────────────────────┘
+
+  Factor   Weight   What It Detects
+  ──────   ──────   ──────────────────────────────────────────
+  V1       25       New IP address (not in user's known IPs)
+  V2       30       New device (fingerprint not recognized)
+  V2b      15       New device type/OS (e.g., first time on Android)
+  V3       20       Unusual login time (outside typical hours)
+  V4       40       Abnormal usage patterns:
+                      - New country (never logged in from there)
+                      - Impossible travel (London → Tokyo in 1 hour)
+                      - Rapid successive logins (brute-force indicator)
+
+RISK LEVELS:
+  0–30   LOW      → Allow access normally
+  31–60  MEDIUM   → Require step-up authentication
+  >60    HIGH     → Block the device session
+
+FORCED MINIMUMS (contextual intelligence):
+  - New device on same IP               → force score to at least 35
+  - New IP, same country, known device  → force score to at least 35
+  - Unusual login time alone            → force score to at least 35
+  - New country detected                → force score to at least 40
+
+This prevents edge cases where individual factor scores are low but
+the combination should warrant scrutiny.
+
+BASELINE PROFILE (stored per user):
+  - Known IP addresses
+  - Known device fingerprints
+  - Known device types (Windows, macOS, Android, iOS, Linux)
+  - Typical login hours (start/end)
+  - Known geo-locations (city, region, country, lat/lng)
+  - Login count and last login metadata
+
+The baseline is ONLY updated after successful step-up verification.
+This prevents an attacker from poisoning the baseline with malicious data.
+
+GEO-IP RESOLUTION:
+  - Uses ipinfo.io API for real-time IP geolocation
+  - Returns: city, region, country, coordinates, timezone
+  - Results are cached in-memory to reduce API calls
+  - Private IPs (127.x, 10.x, 192.168.x) are filtered out
+
+IMPOSSIBLE TRAVEL DETECTION:
+  - Calculates distance between current and last-known location
+  - Calculates time elapsed since last login
+  - If speed exceeds physically possible travel → flag as anomaly
+  - Example: New York at 2:00 PM, then London at 2:30 PM = impossible
+
+
+================================================================================
+  6. STEP-UP AUTHENTICATION
+================================================================================
+
+When the risk score falls in the MEDIUM range (31–60), the system doesn't
+block the user — it challenges them to prove their identity.
+
+CHALLENGE TYPES:
+  ┌───────────────────────────────────────────────────────┐
+  │  1. Security Question  — "What was your first pet?"  │
+  │  2. OTP (Email)        — 6-digit code via email      │
+  │  3. TOTP (Auth App)    — Time-based code via app     │
+  │     (Google Authenticator, Authy, etc.)               │
+  └───────────────────────────────────────────────────────┘
+
+FLOW:
+  1. User logs in → UEBA returns medium risk
+  2. Backend issues a PENDING token (not a full access token)
+  3. Frontend shows StepUpModal with required challenges
+  4. User completes: Security Question + (OTP or TOTP)
+  5. Each challenge verified independently, progress tracked in Redis
+  6. After ALL challenges pass → full access token issued
+  7. User can optionally mark device as trusted (30-day TTL)
+
+TOKEN TYPES:
+  - Access Token   (15 min)  — full resource access
+  - Refresh Token  (7 days)  — silent token renewal
+  - Pending Token  (10 min)  — step-up only, NO resource access
+
+
+DEVICE TRUST:
+  - After successful step-up, user can check "Trust this device"
+  - Trusted devices skip step-up for 30 days (stored in Redis)
+  - Trust is per-device — trusting your laptop doesn't trust your phone
+  - Admin or user can revoke device trust at any time
+
+
+================================================================================
+  7. PER-DEVICE SESSION ISOLATION
+================================================================================
+
+This is a critical security feature. Sessions are keyed by:
+
+  session:{userId}:{deviceFingerprint}
+
+What this means:
+  - Each device has its OWN independent session
+  - Blocking one device does NOT affect other devices
+  - Revoking trust on phone doesn't log out the laptop
+  - High-risk block on a stolen device doesn't lock the real user out
+
+Example Scenario:
+  User logs in from laptop (trusted) and phone (new device).
+  Phone triggers medium risk → step-up required on phone only.
+  Laptop continues working normally — zero interruption.
+
+If the phone session gets blocked (high risk), the user can:
+  - Continue using their trusted laptop
+  - View active sessions from dashboard
+  - Revoke the phone session manually
+
+DEVICE FINGERPRINTING:
+  - Uses FingerprintJS library (browser + hardware fingerprinting)
+  - Generates a unique hash based on: canvas, WebGL, fonts, screen
+    resolution, timezone, language, plugins, and more
+  - Stored in localStorage for consistency across page reloads
+  - Fallback to random UUID if fingerprint generation fails
+
+
+================================================================================
+  8. FILE MANAGEMENT & ACCESS GATES
+================================================================================
+
+ZTCS is ultimately a cloud storage system. Files are the protected resource.
+
+FILE OPERATIONS:
+  - Upload    — drag-drop or click, 10 MB limit, type-validated
+  - Download  — signed URL with expiry, download count tracked
+  - Delete    — soft delete (recoverable), not permanent
+  - List      — search by name, list/grid view toggle
+
+SUPPORTED FILE TYPES:
+  - Images (JPEG, PNG, GIF, WebP, SVG)
+  - Documents (PDF, DOC, DOCX, TXT)
+  - Spreadsheets (XLS, XLSX, CSV)
+  - Archives (ZIP, RAR, 7Z, TAR, GZ)
+
+STORAGE:
+  - Files stored in Supabase Cloud Storage
+  - Per-user isolation (each user has their own storage path)
+  - Download via time-limited signed URLs (not direct public links)
+
+ACCESS GATE ON FILE OPERATIONS:
+  Every file operation (upload, download, list) passes through the
+  Access Gateway. This means:
+  - A download at 3 AM from a new country → step-up or block
+  - A bulk download of 100+ files → flagged as high risk automatically
+  - Even listing files requires passing the Zero Trust check
+
+BULK DOWNLOAD DETECTION:
+  - Tracks download count per user in Redis
+  - 100+ downloads in a short window → auto-flagged
+  - Triggers high-risk alert to admin dashboard in real-time
+
+
+================================================================================
+  9. REAL-TIME MONITORING & ADMIN DASHBOARD
+================================================================================
+
+The admin dashboard provides live visibility into all security events
+using Socket.io (WebSockets).
+
+REAL-TIME EVENTS (pushed to admin instantly):
+  ┌─────────────────────────────────────────────────────────┐
+  │  login-event         — User logged in (with risk data)  │
+  │  session-blocked     — Access denied (high risk)        │
+  │  user-auto-blocked   — User auto-blocked (score >60)    │
+  │  risk-update         — File operation risk assessment    │
+  │  bulk-download       — Bulk download detected           │
+  │  step-up-triggered   — Step-up auth initiated           │
+  │  session-revoked     — User revoked a device session    │
+  │  user-status-change  — User blocked/unblocked           │
+  │  security-alert      — Critical security event          │
+  └─────────────────────────────────────────────────────────┘
+
+ADMIN DASHBOARD FEATURES:
+  1. STATS OVERVIEW
+     - Total users, active sessions, files stored, threats blocked
+     - Risk distribution pie chart (low/medium/high percentage)
+     - Hourly login trends (line chart)
+
+  2. RISK CURVE GRAPH
+     - Live area chart showing risk scores over time
+     - Color-coded dots: green (low), amber (medium), red (high)
+     - Refreshes every 30 seconds + instant Socket.io updates
+     - Tooltip shows: user email, risk score, time, IP, action type
+
+  3. USER MANAGEMENT
+     - All users with: email, role, status, login count, last IP
+     - Current risk score per user
+     - TOTP enabled status
+     - Block/unblock actions
+
+  4. AUDIT LOG VIEWER
+     - Paginated logs (30 per page)
+     - Filter by action type (login, file op, step-up, block, etc.)
+     - Filter by risk level (low, medium, high)
+     - 27 distinct action types tracked
+
+  5. IP MANAGEMENT
+     - Blacklist: block all access from specific IPs
+     - Whitelist: bypass step-up for trusted network IPs
+     - Real-time enforcement (no restart needed)
+
+  6. ACTION CENTER (Blocked Users)
+     - List of auto-blocked users
+     - Multi-step unblock workflow:
+       a. Admin sends OTP to user's email
+       b. Admin enters OTP received from user
+       c. User enters TOTP (if enabled) to finalize
+     - Prevents unauthorized unblocking
+
+  7. LIVE ALERT FEED
+     - Security alerts pinned at top of dashboard
+     - Auto-dismiss after 10 seconds
+     - Types: blacklisted IP access, auto-block, high risk events
+
+
+================================================================================
+  10. CLOUDFLARE DNS & CDN INTEGRATION
+================================================================================
+
+ZTCS uses Cloudflare as a DNS and CDN layer in front of all services.
+
+DOMAIN SETUP:
+  Domain: ztcs.app (purchased from Name.com)
+  DNS managed by Cloudflare (nameservers changed from Name.com defaults)
+
+DNS RECORDS:
+  ┌──────────┬───────┬──────────────────────────────────┐
+  │ Type     │ Name  │ Target                           │
+  ├──────────┼───────┼──────────────────────────────────┤
+  │ CNAME    │ @     │ cname.vercel-dns.com             │
+  │ CNAME    │ www   │ cname.vercel-dns.com             │
+  │ CNAME    │ api   │ ztcs-server.onrender.com         │
+  │ CNAME    │ ueba  │ ztcs-ueba.onrender.com           │
+  └──────────┴───────┴──────────────────────────────────┘
+
+CLOUDFLARE FEATURES USED:
+  - DNS Management       — Fast global DNS resolution
+  - SSL/TLS             — Free universal SSL certificates
+  - DDoS Protection     — Layer 3/4/7 attack mitigation
+  - CDN                 — Edge caching for static assets
+  - Under Attack Mode   — "Checking your browser" challenge page
+  - Browser Integrity   — Bot detection and challenge
+  - WAF (Web App FW)    — Managed rulesets for common attacks
+  - CNAME Flattening    — CNAME on root domain (ztcs.app)
+
+WHY CLOUDFLARE:
+  - Free tier covers all needs
+  - Global edge network (300+ cities)
+  - Sits in front of all three services as a unified security layer
+  - Hides actual Render/Vercel origin IPs from attackers
+  - Complements ZTCS's application-layer Zero Trust with network-layer protection
+
+
+================================================================================
+  11. TECH STACK BREAKDOWN
+================================================================================
+
+FRONTEND:
+  ┌────────────────────────┬────────────────────────────────────────┐
+  │ Technology             │ Purpose                                │
+  ├────────────────────────┼────────────────────────────────────────┤
+  │ React 18               │ UI component framework (SPA)           │
+  │ Vite                   │ Fast build tool & dev server            │
+  │ React Router v6        │ Client-side page routing               │
+  │ Tailwind CSS           │ Utility-first CSS styling              │
+  │ Axios                  │ HTTP client for API calls              │
+  │ Socket.io-client       │ Real-time WebSocket connection         │
+  │ Recharts               │ Data visualization (charts, graphs)    │
+  │ Lucide React           │ Icon library (Shield, Lock, etc.)      │
+  │ React Hot Toast        │ Toast notification system              │
+  │ FingerprintJS          │ Browser/hardware device fingerprinting │
+  └────────────────────────┴────────────────────────────────────────┘
+
+BACKEND:
+  ┌────────────────────────┬────────────────────────────────────────┐
+  │ Technology             │ Purpose                                │
+  ├────────────────────────┼────────────────────────────────────────┤
+  │ Node.js                │ Server-side JavaScript runtime         │
+  │ Express.js             │ Web framework for REST API             │
+  │ Socket.io              │ Real-time event broadcasting           │
+  │ Mongoose               │ MongoDB object modeling (ODM)          │
+  │ ioredis                │ Redis client for caching/sessions      │
+  │ jsonwebtoken (JWT)     │ Token-based authentication             │
+  │ bcryptjs               │ Password hashing (10 salt rounds)      │
+  │ Multer                 │ File upload handling (multipart)       │
+  │ @supabase/supabase-js  │ Cloud file storage SDK                 │
+  │ express-validator      │ Request input validation               │
+  │ express-rate-limit     │ Brute-force protection                 │
+  │ Helmet.js              │ HTTP security headers                  │
+  │ CORS                   │ Cross-origin request handling          │
+  │ Morgan                 │ HTTP request logging                   │
+  │ otpauth                │ TOTP code generation/verification      │
+  │ qrcode                 │ QR code generation for TOTP setup      │
+  │ Nodemailer             │ Email sending (OTP, alerts)            │
+  │ Resend                 │ Email service (fallback provider)      │
+  │ Brevo (Sendinblue)     │ Transactional email API                │
+  └────────────────────────┴────────────────────────────────────────┘
+
+UEBA ENGINE:
+  ┌────────────────────────┬────────────────────────────────────────┐
+  │ Technology             │ Purpose                                │
+  ├────────────────────────┼────────────────────────────────────────┤
+  │ Python 3.11            │ Language for analytics engine          │
+  │ FastAPI                │ Async web framework (high performance) │
+  │ Uvicorn                │ ASGI server (production-grade)         │
+  │ Pydantic               │ Data validation & serialization        │
+  │ httpx                  │ Async HTTP client (for ipinfo.io)      │
+  │ Motor                  │ Async MongoDB driver                   │
+  │ ipinfo.io API          │ Real-time IP geolocation               │
+  └────────────────────────┴────────────────────────────────────────┘
+
+DATABASES & STORAGE:
+  ┌────────────────────────┬────────────────────────────────────────┐
+  │ Technology             │ Purpose                                │
+  ├────────────────────────┼────────────────────────────────────────┤
+  │ MongoDB Atlas          │ Primary database (users, files, logs)  │
+  │ Redis (Upstash)        │ Session cache, risk scores, device     │
+  │                        │ trust, step-up state, IP lists         │
+  │ Supabase Storage       │ Cloud file storage with signed URLs    │
+  └────────────────────────┴────────────────────────────────────────┘
+
+INFRASTRUCTURE & DEPLOYMENT:
+  ┌────────────────────────┬────────────────────────────────────────┐
+  │ Technology             │ Purpose                                │
+  ├────────────────────────┼────────────────────────────────────────┤
+  │ Vercel                 │ Frontend hosting (global CDN, auto CI) │
+  │ Render                 │ Backend + UEBA hosting (Docker-based)  │
+  │ Cloudflare             │ DNS, CDN, DDoS protection, WAF, SSL   │
+  │ Name.com               │ Domain registrar (ztcs.app)            │
+  │ GitHub                 │ Source code repository + CI trigger    │
+  └────────────────────────┴────────────────────────────────────────┘
+
+
+================================================================================
+  12. SECURITY LAYERS SUMMARY
+================================================================================
+
+ZTCS implements 8 distinct security layers:
+
+  LAYER 1: NETWORK (Cloudflare)
+    - DDoS protection, WAF, bot detection, SSL encryption
+
+  LAYER 2: RATE LIMITING (Express)
+    - 100 requests/15 min general, 20 requests/15 min for auth routes
+    - Prevents brute-force attacks
+
+  LAYER 3: INPUT VALIDATION (express-validator)
+    - Email format, password strength, file type whitelist
+    - Prevents injection attacks (XSS, SQLi)
+
+  LAYER 4: AUTHENTICATION (JWT + bcrypt)
+    - Password hashing with bcryptjs (10 salt rounds)
+    - Short-lived access tokens (15 min)
+    - Refresh token rotation
+    - Pending tokens for step-up flows
+
+  LAYER 5: ZERO TRUST ACCESS GATEWAY (middleware)
+    - IP blacklist/whitelist enforcement
+    - Device trust verification
+    - UEBA risk scoring on every request
+    - Fail-closed on UEBA unavailability
+
+  LAYER 6: UEBA BEHAVIORAL ANALYSIS (Python engine)
+    - 5-factor risk formula
+    - Baseline profiling per user
+    - Impossible travel detection
+    - Rapid login detection
+    - Geo-anomaly detection
+
+  LAYER 7: STEP-UP AUTHENTICATION (multi-factor)
+    - Security question (knowledge factor)
+    - OTP via email (possession factor)
+    - TOTP via authenticator app (possession factor)
+    - Must pass ALL required challenges
+
+  LAYER 8: AUDIT & MONITORING (real-time)
+    - 27 action types logged with full context
+    - Real-time admin alerts via WebSockets
+    - IP, device fingerprint, risk score on every log
+    - Complete audit trail for forensics
+
+  LAYER 9: SESSION ISOLATION (per-device)
+    - Device-scoped sessions
+    - Independent blocking per device
+    - Trust management per device
+    - Session revocation without affecting other devices
+
+
+================================================================================
+  13. DEPLOYMENT ARCHITECTURE
+================================================================================
+
+  GitHub (main branch)
+       │
+       ├──── Push triggers ────► Vercel (auto-deploy frontend)
+       │                         → Build: npm run build (Vite)
+       │                         → Output: client/dist/
+       │                         → Domain: ztcs.app, www.ztcs.app
+       │
+       └──── Push triggers ────► Render (auto-deploy backend + UEBA)
+                                 → Backend: node server.js
+                                 → UEBA: uvicorn app.main:app
+                                 → Region: Singapore (closest to India)
+                                 → Domains: api.ztcs.app, ueba.ztcs.app
+
+  All traffic flows through Cloudflare before reaching origin servers.
+
+  Environment Variables (managed per-platform):
+    - Vercel:  VITE_API_URL, VITE_SOCKET_URL
+    - Render:  MONGODB_URI, REDIS_URL, JWT secrets, UEBA_SERVICE_URL,
+               SUPABASE keys, SMTP credentials, CLIENT_URL
+
+
+================================================================================
+  14. KEY METRICS & NUMBERS
+================================================================================
+
+  ┌─────────────────────────────────────┬──────────┐
+  │ Metric                              │ Count    │
+  ├─────────────────────────────────────┼──────────┤
+  │ Frontend Pages                      │ 7        │
+  │ Reusable Components                 │ 8        │
+  │ API Endpoints                       │ 35+      │
+  │ UEBA Risk Factors                   │ 5        │
+  │ Challenge Types                     │ 3        │
+  │ Audit Log Action Types              │ 27       │
+  │ Real-Time Socket Events             │ 10+      │
+  │ Database Models                     │ 3        │
+  │ Middleware Layers                   │ 5        │
+  │ Security Layers                     │ 9        │
+  │ Storage Backends                    │ 3        │
+  │ Microservices                       │ 2        │
+  │ Frontend Libraries                  │ 13       │
+  │ Backend Libraries                   │ 22       │
+  │ Python Libraries                    │ 6        │
+  │ Total External Services             │ 7        │
+  │ Token Types                         │ 3        │
+  │ Device Trust TTL                    │ 30 days  │
+  │ Access Token Lifespan               │ 15 min   │
+  │ Refresh Token Lifespan              │ 7 days   │
+  │ Risk Score Refresh Interval         │ 30 sec   │
+  │ Max File Upload Size                │ 10 MB    │
+  └─────────────────────────────────────┴──────────┘
+
+
+================================================================================
+  15. HOW TO DEMO / PRESENT
+================================================================================
+
+RECOMMENDED DEMO FLOW:
+
+  1. LANDING PAGE (30 seconds)
+     - Show ztcs.app in browser — point out the Cloudflare SSL lock
+     - Highlight live stats counter and animated UI
+
+  2. REGISTRATION (1 minute)
+     - Register a new account
+     - Show password strength meter
+     - Select security question
+     - Point out device fingerprint being generated (console)
+
+  3. NORMAL LOGIN (1 minute)
+     - Login from same browser → LOW risk score
+     - Show dashboard with file manager, sessions, activity tabs
+     - Upload a test file, download it — show it passes access gate
+
+  4. TRIGGER STEP-UP (2 minutes) — THE KEY DEMO
+     - Open incognito/different browser → login same account
+     - New device fingerprint → MEDIUM risk triggered
+     - Show StepUpModal appearing with challenges
+     - Complete security question + OTP
+     - Show "Trust this device" checkbox
+     - Explain: "This happened because UEBA detected a new device"
+
+  5. ADMIN DASHBOARD (2 minutes)
+     - Login as admin
+     - Show live feed — the login events from steps 2-4 should appear
+     - Show risk curve graph updating in real-time
+     - Show audit logs with filtering
+     - Show IP blacklist/whitelist management
+     - Show action center for blocked users
+
+  6. HIGH-RISK SCENARIO (1 minute)
+     - Use UEBA simulation presets (dev mode) to trigger high risk
+     - Show session being blocked
+     - Show admin receiving real-time alert
+     - Explain per-device isolation — "only this device is blocked"
+
+  7. ARCHITECTURE SLIDE (1 minute)
+     - Show the 3-service architecture diagram
+     - Explain: Frontend → Backend → UEBA Engine → Risk Decision
+     - Mention: "All behind Cloudflare for network-level protection"
+
+TALKING POINTS FOR Q&A:
+  - "Why Python for UEBA?" → FastAPI is async and fast, Python excels
+    at data analysis and algorithm implementation
+  - "Why not just use 2FA always?" → UEBA makes it adaptive — low-risk
+    users aren't burdened, high-risk users are challenged or blocked
+  - "What if UEBA service goes down?" → Fail-closed design: system
+    requires full step-up auth, never silently allows access
+  - "How is this different from Google/Microsoft?" → Same principles
+    (Zero Trust, UEBA), implemented from scratch for academic
+    understanding of the underlying concepts
+  - "Can an attacker bypass fingerprinting?" → Fingerprint is one of
+    5 factors; bypassing it still triggers IP, time, and geo checks
+
+
+================================================================================
+  END OF DOCUMENT
+================================================================================

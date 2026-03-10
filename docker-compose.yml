@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongo:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: ztcs
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+  # Node.js Backend
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/ztcs
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-change-in-prod}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-prod}
+      - UEBA_SERVICE_URL=http://ueba:8000
+      - CLIENT_URL=http://localhost:5173
+    depends_on:
+      - mongo
+      - redis
+      - ueba
+    volumes:
+      - ./server/src:/app/src
+
+  # Python UEBA Service
+  ueba:
+    build:
+      context: ./ueba-service
+      dockerfile: Dockerfile
+    ports:
+      - '8000:8000'
+    environment:
+      - ENVIRONMENT=development
+    volumes:
+      - ./ueba-service/app:/app/app
+
+  # React Frontend (dev server)
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173'
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - server
+    volumes:
+      - ./client/src:/app/src
+
+volumes:
+  mongo-data:

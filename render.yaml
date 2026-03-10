@@ -1,0 +1,57 @@
+# render.yaml — Infrastructure as Code for Render deployment
+# Place this in repo root. Render auto-detects it.
+
+services:
+  # ─── Node.js Backend ───────────────────────────────
+  - type: web
+    name: ztcs-server
+    runtime: node
+    region: singapore  # Closest to Hyderabad
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false  # Set manually in Render dashboard
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: "1h"
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: "7d"
+      - key: UEBA_SERVICE_URL
+        value: https://ztcs-ueba.onrender.com
+      - key: CLIENT_URL
+        value: https://ztcs.app,https://www.ztcs.app
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+    healthCheckPath: /api/health
+
+  # ─── Python UEBA Service ──────────────────────────
+  - type: web
+    name: ztcs-ueba
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: ueba-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: IPINFO_TOKEN
+        sync: false
+    healthCheckPath: /health
