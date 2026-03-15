@@ -1205,7 +1205,7 @@ const getMyRiskScores = async (req, res) => {
     const history = (user?.riskHistory || []).slice(-50);
     const dataPoints = history.map((entry, i) => ({
       session: i + 1,
-      score: entry.score ?? 0,
+      score: Math.min(entry.score ?? 0, 100),
       level: entry.level || 'low',
       timestamp: entry.timestamp,
       action: entry.action || '',

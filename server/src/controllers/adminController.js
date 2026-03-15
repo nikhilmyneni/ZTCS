@@ -344,7 +344,7 @@ const getAllRiskScores = async (req, res) => {
   try {
     const logs = await AuditLog.find({
       action: { $in: ['login_initiated', 'login_success', 'login_failed', 'login_blocked', 'file_upload', 'file_download', 'file_delete', 'bulk_download_detected', 'step_up_triggered', 'user_auto_blocked', 'session_terminated'] },
-      riskScore: { $exists: true, $gt: 0 },
+      riskScore: { $exists: true },
     })
       .sort({ createdAt: -1 })
       .limit(100)
@@ -353,7 +353,7 @@ const getAllRiskScores = async (req, res) => {
 
     const dataPoints = logs.reverse().map((log, i) => ({
       session: i + 1,
-      score: log.riskScore || 0,
+      score: Math.min(log.riskScore || 0, 100),
       level: log.riskLevel || 'low',
       email: log.userId?.email || 'Unknown',
       name: log.userId?.name || '',
