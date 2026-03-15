@@ -2,13 +2,13 @@
 
 A cloud storage security system implementing Zero Trust Architecture with User and Entity Behavior Analytics (UEBA) and Dynamic Risk Scoring.
 
-**Malla Reddy University · Department of Cyber Security**
+
 
 ## Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Client (React + Tailwind)          │
+│              Client (React + Tailwind)              │
 │         Login · Register · File Manager · Admin     │
 └──────────────────────┬──────────────────────────────┘
                        │ HTTPS
@@ -97,13 +97,13 @@ Copy `.env.example` to `.env` in both `server/` and `ueba-service/` and fill in 
 ### 3. Run Development
 
 ```bash
-# Terminal 1 — Backend
+# Terminal 1 - Backend
 cd server && npm run dev
 
-# Terminal 2 — UEBA Service
+# Terminal 2 - UEBA Service
 cd ueba-service && uvicorn app.main:app --reload --port 8000
 
-# Terminal 3 — Frontend
+# Terminal 3 - Frontend
 cd client && npm run dev
 ```
 
@@ -129,8 +129,8 @@ V3 = Unusual Login Time   (weight: 20)
 V4 = Abnormal Usage       (weight: 40)
 
 Risk Levels:
-  Low:    0–30   → Access Granted
-  Medium: 31–60  → Step-Up Authentication
+  Low:    0-30   → Access Granted
+  Medium: 30-60  → Step-Up Authentication
   High:   >60    → Session Terminated
 ```
 
