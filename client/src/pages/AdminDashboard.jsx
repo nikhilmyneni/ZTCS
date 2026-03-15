@@ -160,7 +160,15 @@ const AdminDashboard = () => {
     return () => s.disconnect();
   }, []);
 
-  const fetchS = useCallback(async () => { try { const { data } = await api.get('/admin/stats'); setStats(data.data); } catch {} }, []);
+  const [requires2FA, setRequires2FA] = useState(false);
+  const fetchS = useCallback(async () => {
+    try {
+      const { data } = await api.get('/admin/stats');
+      setStats(data.data);
+    } catch (e) {
+      if (e.response?.data?.code === 'ADMIN_2FA_REQUIRED') setRequires2FA(true);
+    }
+  }, []);
   const fetchU = useCallback(async () => { try { const { data } = await api.get('/admin/users'); setUsers(data.data.users); } catch {} }, []);
   const fetchL = useCallback(async () => {
     const p = new URLSearchParams({ page: lp, limit: 30 });
@@ -370,8 +378,33 @@ const AdminDashboard = () => {
         </header>
 
         <main className="flex-1 overflow-auto p-4 sm:p-6">
+          {/* Loading state */}
+          {loading && (
+            <div className="flex items-center justify-center py-20 animate-in">
+              <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--cyan)' }} />
+            </div>
+          )}
+
+          {/* Admin 2FA required */}
+          {!loading && requires2FA && (
+            <div className="flex flex-col items-center justify-center py-20 animate-in">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style={{
+                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)',
+              }}>
+                <Shield className="w-8 h-8" style={{ color: 'var(--amber)' }} />
+              </div>
+              <h2 className="text-lg font-bold mb-2">2FA Required</h2>
+              <p className="text-xs text-center max-w-sm mb-6" style={{ color: 'var(--muted)' }}>
+                Admin accounts must have TOTP authenticator enabled to access the dashboard. Set up 2FA in your account settings first.
+              </p>
+              <button onClick={() => navigate('/dashboard')} className="btn-primary flex items-center gap-2 text-xs px-5 py-2.5">
+                <Shield className="w-4 h-4" /> Go to Settings
+              </button>
+            </div>
+          )}
+
           {/* OVERVIEW */}
-          {nav === 'overview' && stats && (
+          {!loading && nav === 'overview' && stats && (
             <div className="space-y-5 animate-in">
               {/* Stat Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -494,8 +527,20 @@ const AdminDashboard = () => {
             </div>
           )}
 
+          {/* Overview fallback when stats failed to load */}
+          {!loading && nav === 'overview' && !stats && (
+            <div className="flex flex-col items-center justify-center py-20 animate-in">
+              <ShieldAlert className="w-10 h-10 mb-4" style={{ color: 'var(--muted)' }} />
+              <p className="text-sm font-medium mb-1">Failed to load dashboard</p>
+              <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>Could not fetch admin stats</p>
+              <button onClick={async () => { setLoading(true); await fetchS(); setLoading(false); }} className="btn-primary flex items-center gap-2 text-xs px-4 py-2">
+                <RefreshCw className="w-3.5 h-3.5" /> Retry
+              </button>
+            </div>
+          )}
+
           {/* USERS */}
-          {nav === 'users' && (
+          {!loading && nav === 'users' && (
             <div className="animate-in space-y-4">
               {/* Desktop table */}
               <div className="hidden md:block" style={{ ...glass, padding: 0, overflow: 'hidden' }}>
