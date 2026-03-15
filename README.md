@@ -8,20 +8,20 @@ A cloud storage security system implementing Zero Trust Architecture with User a
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Client (React + Tailwind)           │
-│         Login · Register · File Manager · Admin      │
+│                  Client (React + Tailwind)          │
+│         Login · Register · File Manager · Admin     │
 └──────────────────────┬──────────────────────────────┘
                        │ HTTPS
 ┌──────────────────────▼──────────────────────────────┐
-│              Node.js + Express Backend               │
-│  Auth Module · Access Gateway · Policy Engine        │
-│  File Ops · Admin API · Audit Logging                │
+│              Node.js + Express Backend              │
+│  Auth Module · Access Gateway · Policy Engine       │
+│  File Ops · Admin API · Audit Logging               │
 └──────┬───────────────────────────────────┬──────────┘
        │ Internal API                      │ MongoDB / Redis
 ┌──────▼──────────┐              ┌─────────▼──────────┐
-│  Python FastAPI  │              │   MongoDB Atlas     │
-│  UEBA Service    │              │   Redis (Upstash)   │
-│  Risk Scoring    │              │   AWS S3 / Cloudinary│
+│  Python FastAPI │              │   MongoDB Atlas    │
+│  UEBA Service   │              │   Redis (Upstash)  │
+│  Risk Scoring   │              │ AWS S3 / Cloudinary│
 └─────────────────┘              └────────────────────┘
 ```
 
@@ -109,14 +109,14 @@ cd client && npm run dev
 
 ## Implementation Phases
 
-- [x] Phase 1 — Project Setup & Auth Foundation
-- [ ] Phase 2 — UEBA Baseline Profiling
-- [ ] Phase 3 — Dynamic Risk Scoring Engine
-- [ ] Phase 4 — Access Gateway & Step-Up Auth
-- [ ] Phase 5 — File Storage & Core Features
-- [ ] Phase 6 — Admin Dashboard & Real-Time Monitoring
-- [ ] Phase 7 — Testing & Evaluation
-- [ ] Phase 8 — Final Deployment & Presentation
+- [x] Phase 1 - Project Setup & Auth Foundation
+- [x] Phase 2 - UEBA Baseline Profiling
+- [x] Phase 3 - Dynamic Risk Scoring Engine
+- [x] Phase 4 - Access Gateway & Step-Up Auth
+- [x] Phase 5 - File Storage & Core Features
+- [x] Phase 6 - Admin Dashboard & Real-Time Monitoring
+- [ ] Phase 7 - Testing & Evaluation
+- [ ] Phase 8 - Final Deployment & Presentation
 
 ## Risk Scoring Formula
 
@@ -136,4 +136,4 @@ Risk Levels:
 
 ## License
 
-Academic project — Malla Reddy University
+N/A
