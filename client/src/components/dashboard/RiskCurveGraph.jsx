@@ -59,6 +59,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
         if (data.data?.dataPoints?.length) {
           setDataPoints(data.data.dataPoints.map(pt => ({
             ...pt,
+            score: Math.min(pt.score ?? 0, 100),
             time: pt.time || formatLocalTime(pt.timestamp),
           })));
         }
@@ -78,7 +79,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
       setDataPoints(prev => {
         const pt = {
           session: prev.length + 1,
-          score: event.riskScore ?? 0,
+          score: Math.min(event.riskScore ?? 0, 100),
           level: event.riskLevel || 'low',
           email: event.email || '',
           time: formatLocalTime(event.timestamp || new Date().toISOString()),
@@ -177,7 +178,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
             </defs>
             <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis dataKey="time" stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
-            <YAxis domain={[0, 100]} stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, 100]} allowDataOverflow stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={30} stroke="var(--green)" strokeOpacity={0.15} />
             <ReferenceLine y={60} stroke="var(--amber)" strokeOpacity={0.15} />
