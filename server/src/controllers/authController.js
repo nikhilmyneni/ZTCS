@@ -389,10 +389,10 @@ const login = async (req, res) => {
       }
     }
 
-    // ─── HIGH RISK: Risk score >= 80 — block THIS device session only ───
+    // ─── HIGH RISK: Risk score > 60 — block THIS device session only ───
     const triggeredFactors = uebaResult.factors?.filter(f => f.triggered).map(f => f.description) || [];
 
-    if (uebaResult.risk_score >= 80) {
+    if (uebaResult.risk_score > 60) {
       // Block only this device session — do NOT set isBlocked on the user account
       // Account-level blocking should only be done manually by an admin
       if (redis) {
@@ -429,7 +429,7 @@ const login = async (req, res) => {
         riskScore: uebaResult.risk_score,
         riskLevel: 'high',
         details: {
-          reason: 'Risk score >= 80 at login — device session blocked',
+          reason: 'Risk score > 60 at login — device session blocked',
           factors: uebaResult.factors,
           deviceInfo: { os: req.deviceInfo?.os, browser: req.deviceInfo?.browser, deviceType: req.deviceInfo?.deviceType },
         },
@@ -478,7 +478,7 @@ const login = async (req, res) => {
     }
 
     // ─── STEP-UP REQUIRED: Issue pending token only (no full access) ───
-    // Skip step-up for whitelisted IPs and trusted devices (but NOT for high-risk scores >= 80)
+    // Skip step-up for whitelisted IPs and trusted devices (but NOT for high-risk scores > 60)
     const stepUpRequired = !ipWhitelisted && !deviceTrusted && uebaResult.required_challenges && uebaResult.required_challenges.length > 0;
 
     console.log(`   IP Whitelisted: ${ipWhitelisted} | Device Trusted: ${deviceTrusted} | Step-Up Required: ${stepUpRequired}`);

@@ -196,7 +196,7 @@ const downloadFile = async (req, res) => {
           const riskCache = await redis.get(`risk:${user._id}`);
           if (riskCache) {
             const risk = JSON.parse(riskCache);
-            risk.score = Math.min(risk.score + 20, 115);
+            risk.score = Math.min(risk.score + 20, 100);
             risk.level = risk.score <= 30 ? 'low' : risk.score <= 60 ? 'medium' : 'high';
             risk.required_challenges = ['otp_or_totp'];
             risk.challenge_reason = 'Bulk download detected';

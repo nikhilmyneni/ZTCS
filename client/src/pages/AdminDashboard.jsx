@@ -930,7 +930,7 @@ const AdminDashboard = () => {
                 }}>
                   <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--red)' }} />
                   <div>
-                    <p className="text-xs font-semibold" style={{ color: 'var(--red)' }}>High-risk logins (score &ge; 80) are automatically blocked</p>
+                    <p className="text-xs font-semibold" style={{ color: 'var(--red)' }}>High-risk logins (score &gt; 60) are automatically blocked</p>
                     <p className="text-[11px] mt-0.5" style={{ color: 'var(--muted)' }}>Device sessions are blocked for 1 hour. You can dismiss, unblock, or escalate to a full account block.</p>
                   </div>
                 </div>

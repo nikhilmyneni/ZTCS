@@ -274,7 +274,7 @@ const sendPasswordResetEmail = async (to, resetToken) => {
 // ─── Auto-Block Alert ───
 const sendAutoBlockAlert = async (userEmail, riskScore, factors) => {
   const html = emailWrapper(`
-    ${alertBanner('High-Risk Login Blocked \u2014 Score &ge; 80', C.red, C.redSoft, C.redBorder)}
+    ${alertBanner('High-Risk Login Blocked \u2014 Score &gt; 60', C.red, C.redSoft, C.redBorder)}
     ${infoTable(
       infoRow('User', userEmail, C.textBright, true) +
       infoRow('Risk Score', `<span style="font-size:22px;font-weight:800;font-family:'Courier New',monospace;color:${C.red};">${riskScore}</span>`) +

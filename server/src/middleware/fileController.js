@@ -165,7 +165,7 @@ const downloadFile = async (req, res) => {
         const riskCache = await redis.get(`risk:${user._id}`);
         if (riskCache) {
           const risk = JSON.parse(riskCache);
-          risk.score = Math.min(risk.score + 20, 115); // Add 20 for bulk behavior
+          risk.score = Math.min(risk.score + 20, 100); // Add 20 for bulk behavior
           risk.level = risk.score <= 30 ? 'low' : risk.score <= 60 ? 'medium' : 'high';
           await redis.setex(`risk:${user._id}`, 60 * 15, JSON.stringify(risk));
         }

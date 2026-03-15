@@ -2,12 +2,12 @@ from app.models.schemas import AnalyzeRequest, AnalyzeResponse, RiskFactor, GeoI
 from app.utils.geoip import lookup_ip, calculate_geo_distance
 from app.utils.time_analysis import is_unusual_login_time, calculate_login_frequency_anomaly
 
-# ─── Risk Weights (from the paper) ───
-WEIGHT_NEW_IP = 25
-WEIGHT_NEW_DEVICE = 30
-WEIGHT_NEW_DEVICE_TYPE = 15   # New device type (OS) on same IP
-WEIGHT_UNUSUAL_TIME = 20
-WEIGHT_ABNORMAL_USAGE = 40
+# ─── Risk Weights (calibrated for 0–100 scale) ───
+WEIGHT_NEW_IP = 20
+WEIGHT_NEW_DEVICE = 25
+WEIGHT_NEW_DEVICE_TYPE = 10   # New device type (OS) on same IP
+WEIGHT_UNUSUAL_TIME = 15
+WEIGHT_ABNORMAL_USAGE = 30
 
 # ─── Risk Thresholds ───
 THRESHOLD_LOW = 30
@@ -131,6 +131,9 @@ async def analyze_user_behavior(req: AnalyzeRequest) -> AnalyzeResponse:
     # ─── 7. Compute Cumulative Risk Score ───
     risk_score = sum(f.weight for f in factors if f.triggered)
 
+    # Cap at 100
+    risk_score = min(risk_score, 100)
+
     # ─── 8. Force minimum medium risk for contextual anomalies ───
     # New device (fingerprint or type) on same IP → force into medium range for step-up
     if not is_new_ip and (is_new_device or is_new_device_type) and risk_score <= THRESHOLD_LOW:
@@ -149,7 +152,7 @@ async def analyze_user_behavior(req: AnalyzeRequest) -> AnalyzeResponse:
         risk_score = THRESHOLD_LOW + 10  # Force to 40 (medium range)
 
     if is_impossible_travel and risk_score < THRESHOLD_MEDIUM + 1:
-        risk_score = THRESHOLD_MEDIUM + 10  # Force to 70 (high range)
+        risk_score = THRESHOLD_MEDIUM + 5  # Force to 65 (high range)
 
     risk_level = (
         "low" if risk_score <= THRESHOLD_LOW

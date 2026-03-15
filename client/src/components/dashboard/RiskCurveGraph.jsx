@@ -177,7 +177,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
             </defs>
             <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis dataKey="time" stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
-            <YAxis domain={[0, 115]} stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, 100]} stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={30} stroke="var(--green)" strokeOpacity={0.15} />
             <ReferenceLine y={60} stroke="var(--amber)" strokeOpacity={0.15} />
