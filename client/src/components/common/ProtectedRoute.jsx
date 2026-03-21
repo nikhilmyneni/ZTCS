@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Loader2 } from 'lucide-react';
+import ZeroChatbot from './ZeroChatbot';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
@@ -19,7 +20,12 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (adminOnly && !isAdmin) return <Navigate to="/dashboard" replace />;
 
-  return children;
+  return (
+    <>
+      {children}
+      <ZeroChatbot />
+    </>
+  );
 };
 
 export default ProtectedRoute;
