@@ -1,6 +1,6 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 // ─── Circuit Breaker ───
 const circuitBreaker = {
@@ -29,7 +29,7 @@ const _onFailure = () => {
   circuitBreaker.lastFailure = Date.now();
   if (circuitBreaker.failures >= circuitBreaker.THRESHOLD) {
     circuitBreaker.state = 'open';
-    console.warn(`⚠️ Gemini Circuit Breaker OPEN — ${circuitBreaker.failures} consecutive failures`);
+    console.warn(`⚠️ Chat Circuit Breaker OPEN — ${circuitBreaker.failures} consecutive failures`);
   }
 };
 
@@ -52,15 +52,15 @@ ZTCS Features:
 Keep responses concise (2-4 sentences max). Be friendly and helpful. Use plain language.`;
 
 /**
- * Send a message to Gemini and get a response.
+ * Send a message to Groq and get a response.
  * @param {Object} params
  * @param {string} params.message - User's message
  * @param {Array} params.conversationHistory - Previous messages [{role, content}]
  * @param {string} params.userName - User's display name
  */
 const chat = async ({ message, conversationHistory = [], userName }) => {
-  if (!GEMINI_API_KEY) {
-    return 'Zero is not configured yet. Please ask an admin to set up the GEMINI_API_KEY.';
+  if (!GROQ_API_KEY) {
+    return 'Zero is not configured yet. Please ask an admin to set up the GROQ_API_KEY.';
   }
 
   const cbState = _checkCircuit();
@@ -69,27 +69,30 @@ const chat = async ({ message, conversationHistory = [], userName }) => {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+    const groq = new Groq({ apiKey: GROQ_API_KEY });
 
-    // Build chat history in Gemini format
-    const history = conversationHistory.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }],
-    }));
+    const messages = [
+      { role: 'system', content: `${SYSTEM_PROMPT}\n\nThe user's name is ${userName}.` },
+      ...conversationHistory.map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content,
+      })),
+      { role: 'user', content: message },
+    ];
 
-    const chatSession = model.startChat({
-      history,
-      systemInstruction: { parts: [{ text: `${SYSTEM_PROMPT}\n\nThe user's name is ${userName}.` }] },
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages,
+      max_tokens: 300,
+      temperature: 0.7,
     });
 
-    const result = await chatSession.sendMessage(message);
-    const reply = result.response.text();
+    const reply = completion.choices[0]?.message?.content || "I couldn't generate a response. Please try again.";
 
     _onSuccess();
     return reply;
   } catch (error) {
-    console.error('Gemini service error:', error.message);
+    console.error('Chat service error:', error.message);
     _onFailure();
     return "I'm having trouble connecting right now. Please try again in a moment.";
   }
