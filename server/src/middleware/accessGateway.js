@@ -243,7 +243,6 @@ const accessGateway = (options = {}) => {
           .catch(err => console.error('Alert email failed:', err.message));
 
         // Notify user about the block
-        const io = req.app.get('io');
         createNotification({
           userId: user._id,
           type: 'security_alert',
