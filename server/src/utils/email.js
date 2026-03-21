@@ -322,6 +322,42 @@ const sendAccountLockedAlert = async (userEmail) => {
   return sendMail(userEmail, 'Account Locked \u2014 Too Many Failed Attempts \u2014 ZTCS', html);
 };
 
+// ─── Generic Notification Email ───
+const sendNotificationEmail = async (to, title, message, type) => {
+  const accentMap = {
+    security_alert: C.red,
+    risk_alert: C.amber,
+    session_event: C.cyan,
+    admin_action: C.violet,
+    file_activity: C.green,
+  };
+  const accent = accentMap[type] || C.violet;
+
+  const bgMap = {
+    security_alert: C.redSoft,
+    risk_alert: C.amberSoft,
+    session_event: 'rgba(6,182,212,0.06)',
+    admin_action: C.violetSoft,
+    file_activity: C.greenSoft,
+  };
+  const borderMap = {
+    security_alert: C.redBorder,
+    risk_alert: C.amberBorder,
+    session_event: 'rgba(6,182,212,0.15)',
+    admin_action: C.violetBorder,
+    file_activity: C.greenBorder,
+  };
+
+  const html = emailWrapper(`
+    ${alertBanner(title, accent, bgMap[type] || C.violetSoft, borderMap[type] || C.violetBorder)}
+    <p style="color:${C.text};font-size:14px;line-height:1.7;margin:0 0 20px;">${message}</p>
+    ${infoTable(infoRow('Time', getIST()))}
+    <p style="color:${C.muted};font-size:12px;line-height:1.5;margin:0;">This is an automated security notification from ZTCS.</p>
+  `, 'Security Notification', accent);
+
+  return sendMail(to, `${title} — ZTCS`, html);
+};
+
 module.exports = {
   sendOTP,
   sendHighRiskAlert,
@@ -333,4 +369,5 @@ module.exports = {
   sendSessionRevokedAlert,
   sendUEBADownAlert,
   sendAccountLockedAlert,
+  sendNotificationEmail,
 };

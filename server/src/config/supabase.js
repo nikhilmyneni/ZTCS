@@ -43,6 +43,19 @@ const deleteFromSupabase = async (filePath) => {
 };
 
 /**
+ * Download a file's raw bytes from Supabase Storage
+ */
+const downloadFromSupabase = async (filePath) => {
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .download(filePath);
+
+  if (error) throw error;
+  const arrayBuffer = await data.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+};
+
+/**
  * Generate a signed (time-limited) download URL
  */
 const getSignedUrl = async (filePath, expiresIn = 3600) => {
@@ -54,4 +67,4 @@ const getSignedUrl = async (filePath, expiresIn = 3600) => {
   return data.signedUrl;
 };
 
-module.exports = { supabase, uploadToSupabase, deleteFromSupabase, getSignedUrl };
+module.exports = { supabase, uploadToSupabase, deleteFromSupabase, downloadFromSupabase, getSignedUrl };

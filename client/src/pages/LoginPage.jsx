@@ -166,16 +166,16 @@ const LoginPage = () => {
         }}>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="label block mb-2">Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus />
+              <label htmlFor="login-email" className="label block mb-2">Email</label>
+              <input id="login-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus />
             </div>
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="label">Password</label>
+                <label htmlFor="login-password" className="label">Password</label>
                 <Link to="/forgot-password" className="text-[10px] font-medium transition-colors hover:brightness-125" style={{ color: 'var(--cyan)', textDecoration: 'none' }}>Forgot?</Link>
               </div>
               <div className="relative">
-                <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" required className="pr-10" />
+                <input id="login-password" type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" required className="pr-10" />
                 <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)]" style={{ color: 'var(--muted)' }}>
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

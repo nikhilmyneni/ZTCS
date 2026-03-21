@@ -17,6 +17,7 @@ const {
   revokeSession,
   getActivityTimeline,
   getMyRiskScores,
+  getActivitySummary,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -109,6 +110,9 @@ router.get('/my-risk-scores', protect, getMyRiskScores);
 
 // GET /api/auth/activity-timeline
 router.get('/activity-timeline', protect, getActivityTimeline);
+
+// GET /api/auth/activity-summary
+router.get('/activity-summary', protect, getActivitySummary);
 
 // GET /api/auth/login-history
 router.get('/login-history', protect, getLoginHistory);

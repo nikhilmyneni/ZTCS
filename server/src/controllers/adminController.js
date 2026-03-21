@@ -4,6 +4,7 @@ const { User, AuditLog, File } = require('../models');
 const { getRedis } = require('../config/database');
 const { createAuditLog } = require('../middleware/auditLogger');
 const { sendOTP } = require('../utils/email');
+const { createNotification } = require('../services/notificationService');
 
 // ─── Helper: Invalidate cached risk scores (Continuous Re-evaluation) ───
 // Called when admin changes policy (block user, blacklist IP, etc.)
@@ -181,6 +182,18 @@ const toggleBlockUser = async (req, res) => {
         userId, email: user.email, isBlocked: user.isBlocked,
       });
     }
+
+    // Notify the affected user
+    createNotification({
+      userId,
+      type: 'admin_action',
+      title: user.isBlocked ? 'Account Blocked' : 'Account Unblocked',
+      message: user.isBlocked
+        ? 'Your account has been blocked by an administrator. Contact support if you believe this is an error.'
+        : 'Your account has been unblocked by an administrator. You can now log in normally.',
+      sendEmail: true,
+      io,
+    }).catch(() => {});
 
     res.status(200).json({
       success: true,
@@ -814,6 +827,86 @@ const removeFromGeoList = async (req, res) => {
   }
 };
 
+// ─── GENERATE USER REPORT (aggregated data for PDF) ───
+const generateUserReport = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).select('email name role isBlocked createdAt riskHistory baselineProfile');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    const [
+      totalLogins,
+      fileUploads,
+      fileDownloads,
+      fileDeletes,
+      securityEvents,
+      recentLogs,
+      fileCount,
+    ] = await Promise.all([
+      AuditLog.countDocuments({ userId, action: 'login_success' }),
+      AuditLog.countDocuments({ userId, action: 'file_upload' }),
+      AuditLog.countDocuments({ userId, action: 'file_download' }),
+      AuditLog.countDocuments({ userId, action: 'file_delete' }),
+      AuditLog.countDocuments({
+        userId,
+        action: { $in: ['step_up_triggered', 'login_blocked', 'session_terminated', 'access_denied'] },
+      }),
+      AuditLog.find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .select('action ipAddress riskScore riskLevel createdAt'),
+      File.countDocuments({ userId, isDeleted: false }),
+    ]);
+
+    const riskHistory = (user.riskHistory || []).slice(-30).map(r => ({
+      score: Math.min(r.score || 0, 100),
+      level: r.level || 'low',
+      factors: r.factors || [],
+      action: r.action || '',
+      timestamp: r.timestamp,
+    }));
+
+    const avgRiskScore = riskHistory.length > 0
+      ? Math.round(riskHistory.reduce((sum, r) => sum + r.score, 0) / riskHistory.length)
+      : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user: {
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          isBlocked: user.isBlocked,
+          createdAt: user.createdAt,
+        },
+        activity: {
+          totalLogins,
+          fileUploads,
+          fileDownloads,
+          fileDeletes,
+          securityEvents,
+          fileCount,
+          avgRiskScore,
+          knownDevices: user.baselineProfile?.knownDevices?.length || 0,
+          knownIPs: user.baselineProfile?.knownIPs?.length || 0,
+        },
+        riskHistory,
+        recentLogs: recentLogs.map(l => ({
+          action: l.action,
+          ipAddress: l.ipAddress,
+          riskScore: l.riskScore,
+          riskLevel: l.riskLevel,
+          time: l.createdAt,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Generate user report error:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate report.' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   listUsers,
@@ -835,4 +928,5 @@ module.exports = {
   escalateBlock,
   resetUserTOTP,
   clearLoginStats,
+  generateUserReport,
 };

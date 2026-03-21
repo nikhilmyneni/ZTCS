@@ -3,6 +3,7 @@ const { analyzeUserBehavior, analyzeFileOperation } = require('../services/uebaS
 const { createAuditLog } = require('./auditLogger');
 const { sendHighRiskAlert, sendAutoBlockAlert } = require('../utils/email');
 const { User } = require('../models');
+const { createNotification } = require('../services/notificationService');
 
 /**
  * Access Gateway Middleware
@@ -241,6 +242,18 @@ const accessGateway = (options = {}) => {
         sendAutoBlockAlert(user.email, riskData.score, triggeredFactors)
           .catch(err => console.error('Alert email failed:', err.message));
 
+        // Notify user about the block
+        const io = req.app.get('io');
+        createNotification({
+          userId: user._id,
+          type: 'security_alert',
+          title: 'Session Blocked — High Risk Detected',
+          message: `Your session was blocked due to high-risk activity (score: ${riskData.score}). Contact an administrator if this was you.`,
+          metadata: { riskScore: riskData.score, factors: triggeredFactors },
+          sendEmail: true,
+          io,
+        }).catch(() => {});
+
         return res.status(403).json({
           success: false,
           message: 'Session terminated due to high-risk activity.',
@@ -278,6 +291,16 @@ const accessGateway = (options = {}) => {
               riskLevel: 'medium',
               details: { requiredChallenges, challengeReason, uebaUnavailable: !!riskData.ueba_unavailable },
             });
+
+            // Notify user about step-up requirement
+            createNotification({
+              userId: user._id,
+              type: 'risk_alert',
+              title: 'Additional Verification Required',
+              message: challengeReason,
+              metadata: { riskScore: riskData.score, requiredChallenges },
+              io: req.app.get('io'),
+            }).catch(() => {});
 
             return res.status(403).json({
               success: false,

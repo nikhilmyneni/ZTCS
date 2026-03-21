@@ -5,6 +5,7 @@ const { createAuditLog } = require('../middleware/auditLogger');
 const { getRedis } = require('../config/database');
 const { analyzeUserBehavior } = require('../services/uebaService');
 const { sendHighRiskAlert, sendMediumRiskAlert, sendNewCountryAlert, sendPasswordResetEmail, sendAutoBlockAlert, sendSessionRevokedAlert, sendUEBADownAlert, sendAccountLockedAlert } = require('../utils/email');
+const { createNotification } = require('../services/notificationService');
 
 // ─── Helper: Track active session in Redis ───
 const trackSession = async (redis, userId, req) => {
@@ -438,6 +439,17 @@ const login = async (req, res) => {
       sendAutoBlockAlert(user.email, uebaResult.risk_score, triggeredFactors)
         .catch(err => console.error('Auto-block email failed:', err.message));
 
+      // Notify user
+      createNotification({
+        userId: user._id,
+        type: 'security_alert',
+        title: 'Login Blocked — High Risk',
+        message: `A login attempt was blocked due to high-risk activity (score: ${uebaResult.risk_score}).`,
+        metadata: { riskScore: uebaResult.risk_score, factors: triggeredFactors },
+        sendEmail: true,
+        io,
+      }).catch(() => {});
+
       return res.status(403).json({
         success: false,
         message: 'Login blocked due to high-risk activity. Contact admin if this was you.',
@@ -462,6 +474,29 @@ const login = async (req, res) => {
     if (uebaResult.is_new_country && uebaResult.geo_info && !uebaResult.geo_info.is_private) {
       sendNewCountryAlert(user.email, uebaResult.geo_info.country, uebaResult.geo_info.city, uebaResult.risk_score)
         .catch(err => console.error('New country email failed:', err.message));
+    }
+
+    // In-app notifications for notable events
+    if (uebaResult.is_new_device) {
+      createNotification({
+        userId: user._id,
+        type: 'session_event',
+        title: 'New Device Login',
+        message: `A login was detected from a new device (${req.deviceInfo?.browser || 'Unknown'} on ${req.deviceInfo?.os || 'Unknown'}).`,
+        metadata: { deviceInfo: req.deviceInfo, ip: req.clientIP },
+        io,
+      }).catch(() => {});
+    }
+    if (uebaResult.is_new_country && uebaResult.geo_info) {
+      createNotification({
+        userId: user._id,
+        type: 'security_alert',
+        title: 'Login From New Country',
+        message: `A login was detected from ${uebaResult.geo_info.city || 'unknown'}, ${uebaResult.geo_info.country || 'unknown'}.`,
+        metadata: { geoInfo: uebaResult.geo_info },
+        sendEmail: true,
+        io,
+      }).catch(() => {});
     }
 
     // ─── Check if IP is whitelisted (trusted IP skips step-up) ───
@@ -1255,6 +1290,70 @@ const getActivityTimeline = async (req, res) => {
   }
 };
 
+// ─── ACTIVITY SUMMARY (self-service overview for user dashboard) ───
+const getActivitySummary = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const now = new Date();
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalLogins,
+      loginsThisWeek,
+      loginsThisMonth,
+      fileUploads,
+      fileDownloads,
+      fileDeletes,
+      securityEvents,
+      user,
+    ] = await Promise.all([
+      AuditLog.countDocuments({ userId, action: 'login_success' }),
+      AuditLog.countDocuments({ userId, action: 'login_success', createdAt: { $gte: weekAgo } }),
+      AuditLog.countDocuments({ userId, action: 'login_success', createdAt: { $gte: monthAgo } }),
+      AuditLog.countDocuments({ userId, action: 'file_upload' }),
+      AuditLog.countDocuments({ userId, action: 'file_download' }),
+      AuditLog.countDocuments({ userId, action: 'file_delete' }),
+      AuditLog.countDocuments({
+        userId,
+        action: { $in: ['step_up_triggered', 'login_blocked', 'session_terminated', 'access_denied'] },
+      }),
+      User.findById(userId).select('riskHistory baselineProfile.knownDevices baselineProfile.knownIPs createdAt'),
+    ]);
+
+    // Average risk score from last 30 entries
+    const riskHistory = (user?.riskHistory || []).slice(-30);
+    const avgRiskScore = riskHistory.length > 0
+      ? Math.round(riskHistory.reduce((sum, r) => sum + (r.score || 0), 0) / riskHistory.length)
+      : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalLogins,
+        loginsThisWeek,
+        loginsThisMonth,
+        fileUploads,
+        fileDownloads,
+        fileDeletes,
+        securityEvents,
+        avgRiskScore,
+        activeDevices: user?.baselineProfile?.knownDevices?.length || 0,
+        knownIPs: user?.baselineProfile?.knownIPs?.length || 0,
+        accountCreated: user?.createdAt,
+        riskHistory: riskHistory.map(r => ({
+          score: Math.min(r.score || 0, 100),
+          level: r.level || 'low',
+          timestamp: r.timestamp,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Activity summary error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get activity summary.' });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -1272,4 +1371,5 @@ module.exports = {
   revokeSession,
   getActivityTimeline,
   getMyRiskScores,
+  getActivitySummary,
 };

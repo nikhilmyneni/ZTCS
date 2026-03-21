@@ -18,6 +18,7 @@ const validateEnv = () => {
     'SUPABASE_SERVICE_KEY',
     'SUPABASE_BUCKET',
     'CLIENT_URL',
+    'ENCRYPTION_MASTER_KEY',
   ];
 
   const missing = required.filter((key) => !process.env[key]);

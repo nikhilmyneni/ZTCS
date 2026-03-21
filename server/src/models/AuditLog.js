@@ -36,6 +36,7 @@ const auditLogSchema = new mongoose.Schema(
         'password_change',
         'password_reset_completed',
         // Device & session management
+        'device_trusted',
         'device_trust_revoked',
         'session_revoked',
         // Admin actions

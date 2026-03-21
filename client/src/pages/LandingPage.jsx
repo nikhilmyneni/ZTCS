@@ -61,7 +61,8 @@ const LandingPage = () => {
     window.addEventListener('resize', resize);
 
     // Trace particles
-    const particles = Array.from({ length: 60 }, () => ({
+    const particleCount = w < 768 ? 25 : 60;
+    const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
       vx: (Math.random() - 0.5) * 0.4,

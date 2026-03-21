@@ -1,8 +1,9 @@
 const { File, AuditLog } = require('../models');
-const { uploadToSupabase, deleteFromSupabase, getSignedUrl } = require('../config/supabase');
+const { uploadToSupabase, deleteFromSupabase, downloadFromSupabase, getSignedUrl } = require('../config/supabase');
 const { createAuditLog } = require('../middleware/auditLogger');
 const { getRedis } = require('../config/database');
 const { sendBulkDownloadAlert } = require('../utils/email');
+const { encryptBuffer, decryptBuffer } = require('../utils/encryption');
 
 const getResourceType = (mime) => {
   if (!mime) return 'other';
@@ -24,10 +25,27 @@ const uploadFile = async (req, res) => {
     const file = req.file;
     const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
     const storagePath = `${user._id}/${Date.now()}_${safeName}`;
-
-    // Upload to Supabase Storage
-    const result = await uploadToSupabase(file.buffer, storagePath, file.mimetype);
     const ext = file.originalname.split('.').pop()?.toLowerCase() || '';
+
+    // Encrypt file before uploading
+    const masterKey = process.env.ENCRYPTION_MASTER_KEY;
+    let uploadBuffer = file.buffer;
+    let encryptionMeta = {};
+
+    if (masterKey) {
+      const encrypted = encryptBuffer(file.buffer, masterKey);
+      uploadBuffer = encrypted.encryptedBuffer;
+      encryptionMeta = {
+        algorithm: encrypted.algorithm,
+        iv: encrypted.iv,
+        salt: encrypted.salt,
+        authTag: encrypted.authTag,
+        encrypted: true,
+      };
+    }
+
+    // Upload to Supabase Storage (encrypted if key is set)
+    const result = await uploadToSupabase(uploadBuffer, storagePath, 'application/octet-stream');
 
     // Save metadata to MongoDB
     const fileDoc = await File.create({
@@ -39,6 +57,7 @@ const uploadFile = async (req, res) => {
       sizeBytes: file.size,
       resourceType: getResourceType(file.mimetype),
       mimeType: file.mimetype,
+      ...(encryptionMeta.encrypted && { encryption: encryptionMeta }),
     });
 
     // Audit log
@@ -84,6 +103,7 @@ const uploadFile = async (req, res) => {
           size: fileDoc.sizeBytes,
           format: fileDoc.format,
           type: fileDoc.resourceType,
+          encrypted: fileDoc.encryption?.encrypted || false,
           uploadedAt: fileDoc.createdAt,
         },
       },
@@ -102,7 +122,7 @@ const listFiles = async (req, res) => {
       isDeleted: false,
     })
       .sort({ createdAt: -1 })
-      .select('originalName publicUrl format sizeBytes resourceType mimeType downloadCount createdAt isRestricted');
+      .select('originalName publicUrl format sizeBytes resourceType mimeType downloadCount createdAt isRestricted encryption.encrypted');
 
     res.status(200).json({
       success: true,
@@ -117,6 +137,7 @@ const listFiles = async (req, res) => {
           mime: f.mimeType,
           downloads: f.downloadCount,
           restricted: f.isRestricted,
+          encrypted: f.encryption?.encrypted || false,
           uploadedAt: f.createdAt,
         })),
         count: files.length,
@@ -247,14 +268,6 @@ const downloadFile = async (req, res) => {
       }
     }
 
-    // Generate signed URL for secure download
-    let downloadUrl = file.publicUrl;
-    try {
-      downloadUrl = await getSignedUrl(file.storagePath, 3600);
-    } catch {
-      // Fallback to public URL
-    }
-
     // Update file metadata
     await File.findByIdAndUpdate(file._id, {
       $inc: { downloadCount: 1 },
@@ -284,6 +297,38 @@ const downloadFile = async (req, res) => {
         details: file.originalName,
         timestamp: new Date().toISOString(),
       });
+    }
+
+    // Encrypted files: download from Supabase, decrypt, stream back
+    if (file.encryption?.encrypted) {
+      const masterKey = process.env.ENCRYPTION_MASTER_KEY;
+      if (!masterKey) {
+        return res.status(500).json({ success: false, message: 'Decryption key not configured.' });
+      }
+
+      const encryptedData = await downloadFromSupabase(file.storagePath);
+      const decryptedBuffer = decryptBuffer(
+        encryptedData,
+        masterKey,
+        file.encryption.iv,
+        file.encryption.salt,
+        file.encryption.authTag
+      );
+
+      res.set({
+        'Content-Type': file.mimeType || 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${encodeURIComponent(file.originalName)}"`,
+        'Content-Length': decryptedBuffer.length,
+      });
+      return res.send(decryptedBuffer);
+    }
+
+    // Unencrypted files (legacy): return signed URL
+    let downloadUrl = file.publicUrl;
+    try {
+      downloadUrl = await getSignedUrl(file.storagePath, 3600);
+    } catch {
+      // Fallback to public URL
     }
 
     res.status(200).json({

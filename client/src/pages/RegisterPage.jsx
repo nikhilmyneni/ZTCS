@@ -60,17 +60,17 @@ const RegisterPage = () => {
         }}>
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="label block mb-2">Full Name</label>
-              <input name="name" value={f.name} onChange={ch} placeholder="John Doe" required />
+              <label htmlFor="reg-name" className="label block mb-2">Full Name <span style={{ color: 'var(--red)' }}>*</span></label>
+              <input id="reg-name" name="name" value={f.name} onChange={ch} placeholder="John Doe" required />
             </div>
             <div>
-              <label className="label block mb-2">Email</label>
-              <input type="email" name="email" value={f.email} onChange={ch} placeholder="you@example.com" required />
+              <label htmlFor="reg-email" className="label block mb-2">Email <span style={{ color: 'var(--red)' }}>*</span></label>
+              <input id="reg-email" type="email" name="email" value={f.email} onChange={ch} placeholder="you@example.com" required />
             </div>
             <div>
-              <label className="label block mb-2">Password</label>
+              <label htmlFor="reg-password" className="label block mb-2">Password <span style={{ color: 'var(--red)' }}>*</span></label>
               <div className="relative">
-                <input type={showPw ? 'text' : 'password'} name="password" value={f.password} onChange={ch} placeholder="Min 8 characters" required className="pr-10" />
+                <input id="reg-password" type={showPw ? 'text' : 'password'} name="password" value={f.password} onChange={ch} placeholder="Min 8 characters" required className="pr-10" />
                 <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)]" style={{ color: 'var(--muted)' }}>
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -93,8 +93,8 @@ const RegisterPage = () => {
               )}
             </div>
             <div>
-              <label className="label block mb-2">Confirm Password</label>
-              <input type="password" name="confirmPassword" value={f.confirmPassword} onChange={ch} placeholder="Re-enter password" required />
+              <label htmlFor="reg-confirm" className="label block mb-2">Confirm Password <span style={{ color: 'var(--red)' }}>*</span></label>
+              <input id="reg-confirm" type="password" name="confirmPassword" value={f.confirmPassword} onChange={ch} placeholder="Re-enter password" required />
               {f.confirmPassword && !ck.match && <p className="text-[10px] mt-1.5 font-medium" style={{ color: 'var(--red)' }}>Passwords don't match</p>}
             </div>
 
@@ -103,8 +103,8 @@ const RegisterPage = () => {
               <select name="secretQuestion" value={f.secretQuestion} onChange={ch} className="text-sm mb-3">
                 {SQ.map(q => <option key={q} value={q}>{q}</option>)}
               </select>
-              <label className="label block mb-2">Answer</label>
-              <input name="secretAnswer" value={f.secretAnswer} onChange={ch} placeholder="Your answer" required />
+              <label htmlFor="reg-answer" className="label block mb-2">Answer <span style={{ color: 'var(--red)' }}>*</span></label>
+              <input id="reg-answer" name="secretAnswer" value={f.secretAnswer} onChange={ch} placeholder="Your answer" required />
             </div>
 
             <button type="submit" disabled={!valid || loading} className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-sm mt-2">

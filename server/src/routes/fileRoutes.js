@@ -1,8 +1,10 @@
 const express = require('express');
 const multer = require('multer');
+const { param } = require('express-validator');
 const { uploadFile, listFiles, downloadFile, deleteFile } = require('../controllers/fileController');
 const { protect } = require('../middleware/auth');
 const { accessGateway } = require('../middleware/accessGateway');
+const validate = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -50,6 +52,8 @@ router.post(
 // GET /api/files/:fileId/download — Download file
 router.get(
   '/:fileId/download',
+  param('fileId').isMongoId().withMessage('Invalid file ID'),
+  validate,
   accessGateway({ action: 'file_download' }),
   downloadFile
 );
@@ -57,6 +61,8 @@ router.get(
 // DELETE /api/files/:fileId — Delete file
 router.delete(
   '/:fileId',
+  param('fileId').isMongoId().withMessage('Invalid file ID'),
+  validate,
   accessGateway({ action: 'file_delete' }),
   deleteFile
 );

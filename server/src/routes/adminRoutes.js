@@ -1,5 +1,5 @@
 const express = require('express');
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const {
   getDashboardStats,
   listUsers,
@@ -21,6 +21,7 @@ const {
   getGeoList,
   addToGeoList,
   removeFromGeoList,
+  generateUserReport,
 } = require('../controllers/adminController');
 const { protect, restrictTo, requireAdmin2FA } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -42,13 +43,16 @@ router.delete('/stats/logins', clearLoginStats);
 router.get('/users', listUsers);
 
 // PATCH /api/admin/users/:userId/toggle-block — Block/unblock user
-router.patch('/users/:userId/toggle-block', toggleBlockUser);
+router.patch('/users/:userId/toggle-block', param('userId').isMongoId(), validate, toggleBlockUser);
 
 // PATCH /api/admin/users/:userId/reset-totp — Reset user's authenticator
-router.patch('/users/:userId/reset-totp', resetUserTOTP);
+router.patch('/users/:userId/reset-totp', param('userId').isMongoId(), validate, resetUserTOTP);
 
 // GET /api/admin/users/:userId/risk-history — User's risk score timeline
-router.get('/users/:userId/risk-history', getUserRiskHistory);
+router.get('/users/:userId/risk-history', param('userId').isMongoId(), validate, getUserRiskHistory);
+
+// GET /api/admin/users/:userId/report — Generate user activity report data
+router.get('/users/:userId/report', param('userId').isMongoId(), validate, generateUserReport);
 
 // IP Controls
 router.get('/ip-list', getIPList);

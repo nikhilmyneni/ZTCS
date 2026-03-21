@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Upload, FileText, Download, Trash2, Loader2, RefreshCw, Grid, List, Search, FolderOpen, X, Eye, ExternalLink, Calendar, HardDrive, Hash } from 'lucide-react';
+import { Upload, FileText, Download, Trash2, Loader2, RefreshCw, Grid, List, Search, FolderOpen, X, Eye, ExternalLink, Calendar, HardDrive, Hash, Lock } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
@@ -74,15 +74,30 @@ const FileManager = () => {
 
   const dl = async (f) => {
     try {
-      const { data } = await api.get(`/files/${f.id}/download`);
-      const url = data.data.url;
-      // Fetch the file as blob and trigger a real download
-      const res = await fetch(url);
-      const blob = await res.blob();
+      // Try blob first (encrypted files return binary directly)
+      const response = await api.get(`/files/${f.id}/download`, { responseType: 'blob' });
+      const contentType = response.headers['content-type'] || '';
+
+      let blob, fileName;
+
+      if (contentType.includes('application/json')) {
+        // Legacy unencrypted: server returned JSON with URL
+        const text = await response.data.text();
+        const json = JSON.parse(text);
+        const url = json.data.url;
+        fileName = json.data.name || f.name;
+        const res = await fetch(url);
+        blob = await res.blob();
+      } else {
+        // Encrypted: server returned decrypted binary directly
+        blob = response.data;
+        fileName = f.name;
+      }
+
       const blobUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = blobUrl;
-      a.download = data.data.name || f.name;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -170,7 +185,7 @@ const FileManager = () => {
             {filtered.map(f => (
               <div key={f.id} className="file-row group" onClick={() => setPreview(f)}>
                 <Badge file={f} />
-                <span className="flex-1 text-xs truncate font-medium">{f.name}</span>
+                <span className="flex-1 text-xs truncate font-medium flex items-center gap-1.5">{f.name}{f.encrypted && <Lock className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--cyan)' }} title="Encrypted" />}</span>
                 <span className="hidden sm:inline w-16 text-right text-[11px]" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{fmtB(f.size)}</span>
                 <span className="hidden sm:inline w-24 text-right text-[11px]" style={{ color: 'var(--muted)' }}>{new Date(f.uploadedAt).toLocaleDateString()}</span>
                 <div className="w-20 flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -243,6 +258,7 @@ const FileManager = () => {
                   { icon: HardDrive, label: 'Size', value: fmtB(preview.size) },
                   { icon: Calendar, label: 'Uploaded', value: new Date(preview.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
                   { icon: Hash, label: 'Downloads', value: preview.downloads || 0 },
+                  { icon: Lock, label: 'Encrypted', value: preview.encrypted ? 'Yes' : 'No' },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center gap-2.5">
                     <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--muted)' }} />

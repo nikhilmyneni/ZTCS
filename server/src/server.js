@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 const stepUpRoutes = require('./routes/stepUpRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 const httpServer = createServer(app);
@@ -85,7 +86,7 @@ app.use(attachClientInfo);
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 200, // Increased from 100 — admin dashboard polls stats/users/logs frequently
   message: { success: false, message: 'Too many requests. Please try again later.' },
   validate: { trustProxy: false },
 });
@@ -131,6 +132,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stepup', stepUpRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 // Future routes will be added here:
 // app.use('/api/files', fileRoutes);       // Phase 5
 // app.use('/api/admin', adminRoutes);      // Phase 6
@@ -193,6 +195,13 @@ io.on('connection', (socket) => {
   socket.on('join-admin', () => {
     socket.join('admin-room');
     console.log(`👤 Admin joined monitoring room: ${socket.id}`);
+  });
+
+  socket.on('join-user', (userId) => {
+    if (userId) {
+      socket.join(`user:${userId}`);
+      console.log(`👤 User ${userId} joined notification room: ${socket.id}`);
+    }
   });
 
   socket.on('disconnect', () => {

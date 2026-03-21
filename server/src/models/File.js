@@ -30,6 +30,15 @@ const fileSchema = new mongoose.Schema(
     },
     mimeType: String,
 
+    // Encryption metadata
+    encryption: {
+      algorithm: { type: String, default: 'aes-256-gcm' },
+      iv: String,
+      salt: String,
+      authTag: String,
+      encrypted: { type: Boolean, default: false },
+    },
+
     // Access control
     isRestricted: {
       type: Boolean,

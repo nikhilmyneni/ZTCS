@@ -7,11 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../utils/api';
 import { SkeletonLine } from '../components/common/Skeleton';
-
-const glass = {
-  background: 'rgba(255,255,255,0.025)', backdropFilter: 'blur(16px)',
-  border: '1px solid var(--border)', borderRadius: 'var(--radius)',
-};
+import { glass } from '../components/common/UIHelpers';
 
 export default function ProfilePage() {
   const { user } = useAuth();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Shield, LogOut, HardDrive, Settings, History, Menu, X, ChevronRight, Monitor } from 'lucide-react';
+import { Shield, LogOut, HardDrive, Settings, History, Menu, X, ChevronRight, Monitor, BarChart3, Download, Upload, AlertTriangle, Wifi, Loader2 } from 'lucide-react';
 import FileManager from '../components/files/FileManager';
 import RiskCurveGraph from '../components/dashboard/RiskCurveGraph';
 import StepUpModal from '../components/auth/StepUpModal';
@@ -10,6 +10,9 @@ import LoginHistory from '../components/dashboard/LoginHistory';
 import ActiveSessions from '../components/dashboard/ActiveSessions';
 import ActivityTimeline from '../components/dashboard/ActivityTimeline';
 import api, { stepUpEvents } from '../utils/api';
+import toast from 'react-hot-toast';
+import NotificationBell from '../components/common/NotificationBell';
+import { generateUserActivityPDF } from '../utils/pdfExport';
 
 const DashboardPage = () => {
   const { user, logout, isAdmin, riskAssessment } = useAuth();
@@ -22,6 +25,9 @@ const DashboardPage = () => {
   const [fileCount, setFileCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [statusChecked, setStatusChecked] = useState(false);
+  const [activitySummary, setActivitySummary] = useState(null);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [reportGenerating, setReportGenerating] = useState(false);
 
   useEffect(() => {
     api.get('/files').then(({ data }) => {
@@ -73,8 +79,39 @@ const DashboardPage = () => {
   const rl = user?.avgRiskLevel ?? 'low';
   const rc = rl === 'high' ? 'var(--red)' : rl === 'medium' ? 'var(--amber)' : 'var(--green)';
 
+  // Fetch activity summary when activity tab is selected
+  useEffect(() => {
+    if (tab === 'activity' && !activitySummary) {
+      setActivityLoading(true);
+      api.get('/auth/activity-summary')
+        .then(({ data }) => setActivitySummary(data.data))
+        .catch(() => {})
+        .finally(() => setActivityLoading(false));
+    }
+  }, [tab, activitySummary]);
+
+  const downloadMyReport = async () => {
+    setReportGenerating(true);
+    try {
+      const [summaryRes, logsRes] = await Promise.all([
+        activitySummary ? Promise.resolve({ data: { data: activitySummary } }) : api.get('/auth/activity-summary'),
+        api.get('/auth/activity-timeline'),
+      ]);
+      const summary = summaryRes.data.data;
+      const timeline = logsRes.data.data.timeline || [];
+      generateUserActivityPDF({
+        user: { email: user.email, name: user.name, role: user.role || 'user', createdAt: user.createdAt },
+        activity: summary,
+        riskHistory: summary.riskHistory || [],
+        recentLogs: timeline.map(t => ({ action: t.action, ipAddress: t.ipAddress, riskScore: t.riskScore, riskLevel: t.riskLevel, time: t.time })),
+      });
+    } catch { toast.error('Failed to generate report.'); }
+    finally { setReportGenerating(false); }
+  };
+
   const navItems = [
     { id: 'files', label: 'Files', icon: HardDrive },
+    { id: 'activity', label: 'Activity', icon: BarChart3 },
     { id: 'timeline', label: 'Timeline', icon: History },
     { id: 'sessions', label: 'Sessions', icon: Monitor },
     { id: 'history', label: 'Login Log', icon: History },
@@ -184,6 +221,7 @@ const DashboardPage = () => {
             </button>
             <h1 className="text-sm font-semibold">
               {tab === 'files' && 'My Files'}
+              {tab === 'activity' && 'Activity Overview'}
               {tab === 'timeline' && 'Activity Timeline'}
               {tab === 'sessions' && 'Sessions & Devices'}
               {tab === 'history' && 'Login Log'}
@@ -191,15 +229,79 @@ const DashboardPage = () => {
               {tab === 'admin' && 'Admin Panel'}
             </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="dot-pulse" style={{ background: 'var(--green)' }} />
-            <span className="text-[10px] hidden sm:inline" style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontWeight: 600 }}>SECURE</span>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <div className="flex items-center gap-2">
+              <div className="dot-pulse" style={{ background: 'var(--green)' }} />
+              <span className="text-[10px] hidden sm:inline" style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontWeight: 600 }}>SECURE</span>
+            </div>
           </div>
         </header>
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-4 sm:p-6">
           {tab === 'files' && <FileManager />}
+          {tab === 'activity' && (
+            <div className="animate-in space-y-5">
+              {activityLoading ? (
+                <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--muted)' }} /></div>
+              ) : activitySummary ? (
+                <>
+                  {/* Summary Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {[
+                      { label: 'Total Logins', value: activitySummary.totalLogins, icon: Monitor, color: 'var(--cyan)' },
+                      { label: 'Files Uploaded', value: activitySummary.fileUploads, icon: Upload, color: 'var(--green)' },
+                      { label: 'Files Downloaded', value: activitySummary.fileDownloads, icon: Download, color: 'var(--violet)' },
+                      { label: 'Security Events', value: activitySummary.securityEvents, icon: AlertTriangle, color: 'var(--amber)' },
+                      { label: 'Avg Risk Score', value: activitySummary.avgRiskScore, icon: Shield, color: activitySummary.avgRiskScore > 60 ? 'var(--red)' : activitySummary.avgRiskScore > 30 ? 'var(--amber)' : 'var(--green)' },
+                    ].map(({ label, value, icon: Icon, color }) => (
+                      <div key={label} className="card p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Icon className="w-4 h-4" style={{ color }} />
+                          <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--muted)' }}>{label}</span>
+                        </div>
+                        <p className="text-2xl font-bold tabular-nums" style={{ fontFamily: 'var(--mono)', color }}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Details Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="card p-4">
+                      <span className="label">Logins This Week</span>
+                      <p className="text-lg font-bold mt-1" style={{ fontFamily: 'var(--mono)' }}>{activitySummary.loginsThisWeek}</p>
+                    </div>
+                    <div className="card p-4">
+                      <span className="label">Known Devices</span>
+                      <p className="text-lg font-bold mt-1" style={{ fontFamily: 'var(--mono)' }}>{activitySummary.activeDevices}</p>
+                    </div>
+                    <div className="card p-4">
+                      <span className="label">Known IPs</span>
+                      <p className="text-lg font-bold mt-1" style={{ fontFamily: 'var(--mono)' }}>{activitySummary.knownIPs}</p>
+                    </div>
+                  </div>
+
+                  {/* Download Report Button */}
+                  <div className="flex justify-end">
+                    <button
+                      onClick={downloadMyReport}
+                      disabled={reportGenerating}
+                      className="btn-primary flex items-center gap-2 px-4 py-2.5 text-xs"
+                    >
+                      {reportGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                      {reportGenerating ? 'Generating...' : 'Download Activity Report'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center py-16">
+                  <BarChart3 className="w-12 h-12 mb-3" style={{ color: 'var(--muted2)' }} />
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>Failed to load activity data.</p>
+                </div>
+              )}
+            </div>
+          )}
           {tab === 'timeline' && (
             <div className="animate-in flex flex-col xl:flex-row gap-5" style={{ height: 'calc(100vh - var(--header) - 3rem)' }}>
               {/* Timeline — scrollable event list */}
