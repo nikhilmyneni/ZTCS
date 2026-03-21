@@ -70,7 +70,7 @@ const chat = async ({ message, conversationHistory = [], userName }) => {
 
   try {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
     // Build chat history in Gemini format
     const history = conversationHistory.map(msg => ({
