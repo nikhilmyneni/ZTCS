@@ -148,7 +148,6 @@ userSchema.methods.isPasswordReused = async function (candidatePassword) {
 };
 
 // Index for fast lookups
-userSchema.index({ email: 1 });
 userSchema.index({ 'baselineProfile.knownIPs': 1 });
 
 const User = mongoose.model('User', userSchema);
