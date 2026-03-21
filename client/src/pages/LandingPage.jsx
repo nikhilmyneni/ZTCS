@@ -194,8 +194,8 @@ const LandingPage = () => {
         </h1>
 
         <p className="anim-3 mt-5 sm:mt-7 text-sm sm:text-base leading-relaxed max-w-xl mx-auto" style={{ color: 'var(--text2)' }}>
-          Cloud storage secured by real-time behavioral analytics. Every login scored.
-          Every action monitored.
+          Cloud storage with built-in behavioral analytics.
+          Every access attempt is scored and verified in real time.
         </p>
 
         <div className="anim-4 flex flex-col sm:flex-row justify-center gap-3 mt-8 sm:mt-10">

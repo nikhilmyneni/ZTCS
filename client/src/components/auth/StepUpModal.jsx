@@ -11,15 +11,15 @@ const CHALLENGE_LABELS = {
 
 // Map challenge reasons to user-friendly messages
 const REASON_MESSAGES = {
-  'Login from new IP and unrecognized device': 'We detected a login from a new location and device.',
-  'Login from new device type on known IP': 'A new device type was detected on your account.',
-  'Login from new device on known IP': 'A new device was detected on your account.',
-  'Login from new IP address (same country)': 'We detected a login from a new IP address.',
-  'Login at unusual time': 'This login is outside your typical hours.',
-  'Bulk download detected': 'Unusual download activity was detected.',
-  'Elevated risk detected': 'Unusual activity was detected on your account.',
-  'Risk engine unavailable — identity verification required': 'Additional verification is required to confirm your identity.',
-  'Risk engine unavailable — full verification required': 'Additional verification is required to confirm your identity.',
+  'Login from new IP and unrecognized device': 'New location and device — please verify.',
+  'Login from new device type on known IP': 'New device type on your account.',
+  'Login from new device on known IP': 'New device on your account.',
+  'Login from new IP address (same country)': 'New IP address — quick verification needed.',
+  'Login at unusual time': 'Login outside your usual hours.',
+  'Bulk download detected': 'Large number of downloads flagged.',
+  'Elevated risk detected': 'Unusual account activity flagged.',
+  'Risk engine unavailable — identity verification required': 'Verification needed to continue.',
+  'Risk engine unavailable — full verification required': 'Verification needed to continue.',
 };
 
 const StepUpModal = ({ isOpen, onClose, onVerified, secretQuestion, requiredChallenges = [], challengeReason = '' }) => {

@@ -5,7 +5,7 @@ import {
   Shield, Users, Activity, Lock, Unlock, Download, RefreshCw,
   ChevronLeft, ChevronRight, X, Wifi, WifiOff, LogOut, LayoutDashboard,
   ScrollText, Globe, Radio, ShieldAlert, FolderOpen, Menu, Mail, Smartphone,
-  Loader2, CheckCircle, AlertTriangle, ShieldCheck, Bell, TrendingUp,
+  Loader2, CheckCircle, AlertTriangle, ShieldCheck, TrendingUp,
   Clock, BarChart3, PieChart as PieChartIcon
 } from 'lucide-react';
 import {
@@ -48,9 +48,6 @@ const AdminDashboard = () => {
   const [acLoading, setAcLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [adminConfirm, setAdminConfirm] = useState(null);
-  const [notifications, setNotifications] = useState([]);
-  const [showNotifPanel, setShowNotifPanel] = useState(false);
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   useEffect(() => {
     if (countdown > 0) {
@@ -93,7 +90,7 @@ const AdminDashboard = () => {
       const id = Date.now() + Math.random();
       setAlerts(p => [{ ...a, id }, ...p].slice(0, 5));
       setTimeout(() => setAlerts(p => p.filter(x => x.id !== id)), 10000);
-      setNotifications(p => [{ ...a, id, read: false, time: new Date().toISOString() }, ...p].slice(0, 50));
+
     });
     return () => s.disconnect();
   }, []);
@@ -233,23 +230,7 @@ const AdminDashboard = () => {
             </div>
             <span className="font-bold text-sm" style={{ color: 'var(--text)' }}>ZTCS Admin</span>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowNotifPanel(p => !p)}
-              className="icon-btn relative"
-              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
-            >
-              <Bell className="w-4 h-4" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center" style={{
-                  background: 'var(--red)', color: '#fff',
-                }}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
-            <button className="lg:hidden icon-btn" onClick={() => setSidebarOpen(false)} aria-label="Close sidebar"><X className="w-4 h-4" /></button>
-          </div>
+          <button className="lg:hidden icon-btn" onClick={() => setSidebarOpen(false)} aria-label="Close sidebar"><X className="w-4 h-4" /></button>
         </div>
 
         <div className="px-4 mb-1">
@@ -1263,77 +1244,6 @@ const AdminDashboard = () => {
               <p className="text-[9px] pl-4 mt-1" style={{ fontFamily: 'var(--mono)', color: 'var(--muted2)' }}>{new Date(a.timestamp).toLocaleTimeString()}</p>
             </div>
           );})}
-        </div>
-      )}
-
-      {/* Notification Panel */}
-      {showNotifPanel && (
-        <div className="fixed inset-0 z-50" onClick={() => setShowNotifPanel(false)}>
-          <div
-            className="absolute top-4 right-4 w-80 max-h-[70vh] overflow-auto animate-scale"
-            style={{
-              background: 'rgba(12,12,20,0.97)', backdropFilter: 'blur(24px)',
-              border: '1px solid var(--border2)', borderRadius: 'var(--radius-lg)',
-              boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
-              <h3 className="text-sm font-bold">Notifications</h3>
-              <div className="flex items-center gap-2">
-                {unreadCount > 0 && (
-                  <button
-                    onClick={() => setNotifications(p => p.map(n => ({ ...n, read: true })))}
-                    className="text-[10px] font-medium transition-colors"
-                    style={{ color: 'var(--cyan)' }}
-                  >
-                    Mark all read
-                  </button>
-                )}
-                <button onClick={() => setShowNotifPanel(false)} className="icon-btn p-1"><X className="w-3.5 h-3.5" /></button>
-              </div>
-            </div>
-            {notifications.length === 0 ? (
-              <div className="py-8 text-center">
-                <Bell className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--muted2)' }} />
-                <p className="text-xs" style={{ color: 'var(--muted)' }}>No notifications yet</p>
-              </div>
-            ) : (
-              <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
-                {notifications.map(n => {
-                  const alertColor = n.type === 'critical' ? 'var(--red)' : n.type === 'warning' ? 'var(--amber)' : 'var(--cyan)';
-                  return (
-                    <div
-                      key={n.id}
-                      className="px-4 py-3 transition-colors cursor-pointer"
-                      style={{ background: n.read ? 'transparent' : 'rgba(6,182,212,0.03)' }}
-                      onClick={() => setNotifications(p => p.map(x => x.id === n.id ? { ...x, read: true } : x))}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: alertColor }} />
-                        <span className="text-xs font-semibold flex-1 truncate" style={{ color: alertColor }}>{n.title}</span>
-                        <span className="text-[9px] flex-shrink-0" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>
-                          {n.time ? new Date(n.time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : ''}
-                        </span>
-                      </div>
-                      <p className="text-[11px] pl-4" style={{ color: 'var(--text2)' }}>{n.message}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            {notifications.length > 0 && (
-              <div className="px-4 py-2" style={{ borderTop: '1px solid var(--border)' }}>
-                <button
-                  onClick={() => { setNotifications([]); setShowNotifPanel(false); }}
-                  className="text-[10px] font-medium w-full text-center py-1 transition-colors"
-                  style={{ color: 'var(--muted)' }}
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       )}
 

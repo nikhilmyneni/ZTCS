@@ -49,7 +49,7 @@ const RegisterPage = () => {
             <Shield className="w-6 h-6" style={{ color: 'var(--cyan)' }} />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
-          <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>Secure your data with Zero Trust</p>
+          <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>Join the Zero Trust Cloud</p>
         </div>
 
         {/* Glass card */}
@@ -60,8 +60,8 @@ const RegisterPage = () => {
         }}>
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label htmlFor="reg-name" className="label block mb-2">Full Name <span style={{ color: 'var(--red)' }}>*</span></label>
-              <input id="reg-name" name="name" value={f.name} onChange={ch} placeholder="John Doe" required />
+              <label htmlFor="reg-name" className="label block mb-2">Name <span style={{ color: 'var(--red)' }}>*</span></label>
+              <input id="reg-name" name="name" value={f.name} onChange={ch} placeholder="Your name" required />
             </div>
             <div>
               <label htmlFor="reg-email" className="label block mb-2">Email <span style={{ color: 'var(--red)' }}>*</span></label>
@@ -70,7 +70,7 @@ const RegisterPage = () => {
             <div>
               <label htmlFor="reg-password" className="label block mb-2">Password <span style={{ color: 'var(--red)' }}>*</span></label>
               <div className="relative">
-                <input id="reg-password" type={showPw ? 'text' : 'password'} name="password" value={f.password} onChange={ch} placeholder="Min 8 characters" required className="pr-10" />
+                <input id="reg-password" type={showPw ? 'text' : 'password'} name="password" value={f.password} onChange={ch} placeholder="8+ characters" required className="pr-10" />
                 <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors hover:bg-[rgba(255,255,255,0.05)]" style={{ color: 'var(--muted)' }}>
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -94,7 +94,7 @@ const RegisterPage = () => {
             </div>
             <div>
               <label htmlFor="reg-confirm" className="label block mb-2">Confirm Password <span style={{ color: 'var(--red)' }}>*</span></label>
-              <input id="reg-confirm" type="password" name="confirmPassword" value={f.confirmPassword} onChange={ch} placeholder="Re-enter password" required />
+              <input id="reg-confirm" type="password" name="confirmPassword" value={f.confirmPassword} onChange={ch} placeholder="Same as above" required />
               {f.confirmPassword && !ck.match && <p className="text-[10px] mt-1.5 font-medium" style={{ color: 'var(--red)' }}>Passwords don't match</p>}
             </div>
 

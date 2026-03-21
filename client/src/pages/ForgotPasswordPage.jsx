@@ -36,7 +36,7 @@ const ForgotPasswordPage = () => {
             <Shield className="w-6 h-6" style={{ color: 'var(--cyan)' }} />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Reset Password</h1>
-          <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>We'll send you a reset link</p>
+          <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>Enter your email to get a reset link</p>
         </div>
 
         <div className="anim-2" style={{

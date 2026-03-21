@@ -31,8 +31,7 @@ export default function NotFoundPage() {
             Page Not Found
           </h2>
           <p className="text-sm" style={{ color: 'var(--muted)' }}>
-            The resource you're looking for doesn't exist or has been moved.
-            This request has been logged for security monitoring.
+            This page doesn't exist or may have been moved.
           </p>
         </div>
 

@@ -340,7 +340,7 @@ const DashboardPage = () => {
                 <Shield className="w-8 h-8" style={{ color: 'var(--cyan)' }} />
               </div>
               <h2 className="text-lg sm:text-xl font-bold mb-2">Security Command Center</h2>
-              <p className="text-xs sm:text-sm mb-6 text-center max-w-sm" style={{ color: 'var(--muted)' }}>Monitor threats, manage users, and review audit logs in real-time</p>
+              <p className="text-xs sm:text-sm mb-6 text-center max-w-sm" style={{ color: 'var(--muted)' }}>View security events, manage users, and review audit logs</p>
               <button onClick={() => navigate('/admin')} className="btn-primary flex items-center gap-2 px-6 py-3 text-sm">
                 <Shield className="w-4 h-4" /> Open Admin Dashboard <ChevronRight className="w-4 h-4" />
               </button>
