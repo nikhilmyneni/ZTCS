@@ -177,7 +177,7 @@ const SecuritySettings = () => {
               <InfoRow icon={Clock} label="Last Login" value={lastLogin ? new Date(lastLogin).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'} />
               <InfoRow icon={Monitor} label="Known Devices" value={knownDevices} mono />
               <InfoRow icon={Globe} label="Known IPs" value={knownIPs} mono />
-              <InfoRow icon={Fingerprint} label="Account ID" value={user?._id?.slice(-8) || '\u2014'} mono color="var(--muted)" />
+              <InfoRow icon={Fingerprint} label="Account ID" value={user?.id?.slice(-8) || '\u2014'} mono color="var(--muted)" />
             </div>
           </div>
         </div>
