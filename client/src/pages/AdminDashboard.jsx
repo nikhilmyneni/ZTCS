@@ -6,8 +6,9 @@ import {
   ChevronLeft, ChevronRight, X, Wifi, WifiOff, LogOut, LayoutDashboard,
   ScrollText, Globe, Radio, ShieldAlert, FolderOpen, Menu, Mail, Smartphone,
   Loader2, CheckCircle, AlertTriangle, ShieldCheck, TrendingUp,
-  Clock, BarChart3, PieChart as PieChartIcon
+  Clock, BarChart3, PieChart as PieChartIcon, Sun, Moon
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line
@@ -23,6 +24,7 @@ import { generateAuditPDF, generateUserActivityPDF } from '../utils/pdfExport';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [nav, setNav] = useState('overview');
   const [stats, setStats] = useState(null);
@@ -220,7 +222,7 @@ const AdminDashboard = () => {
         transform transition-transform duration-300 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `} style={{
-        background: 'rgba(12,12,20,0.95)', backdropFilter: 'blur(24px)',
+        background: 'var(--panel-bg)', backdropFilter: 'blur(24px)',
         borderRight: '1px solid var(--border)',
       }}>
         <div className="px-5 pt-5 pb-4 flex items-center justify-between">
@@ -277,7 +279,7 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <header className="h-[56px] flex items-center justify-between px-4 sm:px-6 flex-shrink-0" style={{
           borderBottom: '1px solid var(--border)',
-          background: 'rgba(12,12,20,0.6)', backdropFilter: 'blur(16px)',
+          background: 'var(--panel-bg-soft)', backdropFilter: 'blur(16px)',
         }}>
           <div className="flex items-center gap-3">
             <button className="lg:hidden icon-btn" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">
@@ -291,6 +293,9 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button onClick={toggleTheme} className="icon-btn" title="Toggle theme">
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <NotificationBell />
             <div className="flex items-center gap-2">
               <div className="dot-pulse" style={{ background: 'var(--red)' }} />
@@ -1072,7 +1077,7 @@ const AdminDashboard = () => {
 
       {/* Right Sidebar */}
       <aside className="hidden xl:flex w-[250px] flex-shrink-0 overflow-auto flex-col" style={{
-        background: 'rgba(12,12,20,0.95)', backdropFilter: 'blur(16px)',
+        background: 'var(--panel-bg)', backdropFilter: 'blur(16px)',
         borderLeft: '1px solid var(--border)',
       }}>
         <div className="px-5 pt-5 pb-3">

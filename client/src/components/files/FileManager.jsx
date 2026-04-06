@@ -238,7 +238,7 @@ const FileManager = () => {
           </div>
           {/* Side Info - hidden on small screens, shown bottom on medium */}
           <div className="w-full sm:w-[280px] flex-shrink-0 flex flex-col" style={{
-            background: 'rgba(12,12,20,0.95)', backdropFilter: 'blur(16px)',
+            background: 'var(--panel-bg)', backdropFilter: 'blur(16px)',
             borderLeft: '1px solid var(--border)', borderTop: '1px solid var(--border)',
           }}>
             <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>

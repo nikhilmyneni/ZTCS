@@ -33,9 +33,9 @@ const CustomTooltip = ({ active, payload }) => {
   const actionLabel = ACTION_LABELS[d.action] || d.action || '';
   return (
     <div style={{
-      background: 'rgba(18,18,30,0.95)', backdropFilter: 'blur(12px)',
-      border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+      background: 'var(--toast-bg)', backdropFilter: 'blur(12px)',
+      border: '1px solid var(--border2)', borderRadius: 10, padding: '10px 14px',
+      boxShadow: 'var(--shadow-lg)',
     }}>
       <p className="text-xs font-medium" style={{ color: 'var(--text)' }}>{d.email || d.label}</p>
       <p className="text-lg font-bold" style={{ color: c, fontFamily: 'var(--mono)' }}>{d.score}</p>

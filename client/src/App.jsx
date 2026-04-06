@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
@@ -17,25 +18,26 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <ThemeProvider>
         <AuthProvider>
           <Toaster
             position="top-right"
             toastOptions={{
               style: {
-                background: 'rgba(18,18,30,0.95)',
+                background: 'var(--toast-bg)',
                 backdropFilter: 'blur(16px)',
-                color: '#eeeef2',
-                border: '1px solid rgba(255,255,255,0.08)',
+                color: 'var(--toast-text)',
+                border: '1px solid var(--border2)',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '0.82rem',
                 borderRadius: '12px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                boxShadow: 'var(--shadow-lg)',
               },
               success: {
-                iconTheme: { primary: '#10b981', secondary: '#050507' },
+                iconTheme: { primary: '#10b981', secondary: 'var(--on-accent)' },
               },
               error: {
-                iconTheme: { primary: '#ef4444', secondary: '#050507' },
+                iconTheme: { primary: '#ef4444', secondary: 'var(--on-accent)' },
               },
             }}
           />
@@ -74,6 +76,7 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AuthProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </ErrorBoundary>
   );

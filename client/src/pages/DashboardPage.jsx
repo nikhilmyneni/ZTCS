@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Shield, LogOut, HardDrive, Settings, History, Menu, X, ChevronRight, Monitor, BarChart3, Download, Upload, AlertTriangle, Wifi, Loader2 } from 'lucide-react';
+import { Shield, LogOut, HardDrive, Settings, History, Menu, X, ChevronRight, Monitor, BarChart3, Download, Upload, AlertTriangle, Wifi, Loader2, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import FileManager from '../components/files/FileManager';
 import RiskCurveGraph from '../components/dashboard/RiskCurveGraph';
 import StepUpModal from '../components/auth/StepUpModal';
@@ -16,6 +17,7 @@ import { generateUserActivityPDF } from '../utils/pdfExport';
 
 const DashboardPage = () => {
   const { user, logout, isAdmin, riskAssessment } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [tab, setTab] = useState('files');
   const [showStepUp, setShowStepUp] = useState(false);
@@ -133,7 +135,7 @@ const DashboardPage = () => {
         transform transition-transform duration-300 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `} style={{
-        background: 'rgba(12,12,20,0.95)', backdropFilter: 'blur(24px)',
+        background: 'var(--panel-bg)', backdropFilter: 'blur(24px)',
         borderRight: '1px solid var(--border)',
       }}>
         {/* Logo */}
@@ -213,7 +215,7 @@ const DashboardPage = () => {
         {/* Header */}
         <header className="h-[var(--header)] flex items-center justify-between px-4 sm:px-6 flex-shrink-0" style={{
           borderBottom: '1px solid var(--border)',
-          background: 'rgba(12,12,20,0.6)', backdropFilter: 'blur(16px)',
+          background: 'var(--panel-bg-soft)', backdropFilter: 'blur(16px)',
         }}>
           <div className="flex items-center gap-3">
             <button className="lg:hidden icon-btn" onClick={() => setSidebarOpen(true)}>
@@ -230,6 +232,9 @@ const DashboardPage = () => {
             </h1>
           </div>
           <div className="flex items-center gap-3">
+            <button onClick={toggleTheme} className="icon-btn" title="Toggle theme">
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <NotificationBell />
             <div className="flex items-center gap-2">
               <div className="dot-pulse" style={{ background: 'var(--green)' }} />

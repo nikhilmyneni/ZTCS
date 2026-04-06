@@ -79,12 +79,12 @@ export default function Pagination({
               onClick={() => onPageChange(page)}
               className={`w-7 h-7 rounded-md text-xs font-medium transition-all ${
                 page === currentPage
-                  ? 'text-[#050507] font-bold'
+                  ? 'font-bold'
                   : ''
               }`}
               style={
                 page === currentPage
-                  ? { background: 'var(--cyan)', color: '#050507' }
+                  ? { background: 'var(--cyan)', color: 'var(--on-accent)' }
                   : { color: 'var(--text2)' }
               }
               onMouseEnter={(e) => {

@@ -21,9 +21,9 @@ export const CTip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: 'rgba(18,18,30,0.95)', backdropFilter: 'blur(12px)',
-      border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '8px 14px', fontSize: 12,
-      boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+      background: 'var(--toast-bg)', backdropFilter: 'blur(12px)',
+      border: '1px solid var(--border2)', borderRadius: 10, padding: '8px 14px', fontSize: 12,
+      boxShadow: 'var(--shadow-lg)',
     }}>
       {payload[0]?.name}: <strong>{payload[0]?.value}</strong>
     </div>

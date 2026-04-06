@@ -56,7 +56,7 @@ const NotificationBell = () => {
         <div
           className="absolute right-0 top-full mt-2 w-[340px] max-h-[440px] flex flex-col z-50 animate-scale"
           style={{
-            background: 'rgba(12,12,20,0.98)',
+            background: 'var(--panel-bg)',
             backdropFilter: 'blur(24px)',
             border: '1px solid var(--border)',
             borderRadius: '12px',

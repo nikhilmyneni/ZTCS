@@ -187,7 +187,7 @@ const ZeroChatbot = () => {
             maxWidth: 'calc(100vw - 2rem)',
             height: 520,
             maxHeight: 'calc(100vh - 8rem)',
-            background: 'rgba(12,12,20,0.98)',
+            background: 'var(--panel-bg)',
             backdropFilter: 'blur(24px)',
             border: '1px solid var(--border)',
             borderRadius: 16,
