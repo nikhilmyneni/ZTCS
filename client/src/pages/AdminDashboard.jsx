@@ -6,12 +6,12 @@ import {
   ChevronLeft, ChevronRight, X, Wifi, WifiOff, LogOut, LayoutDashboard,
   ScrollText, Globe, Radio, ShieldAlert, FolderOpen, Menu, Mail, Smartphone,
   Loader2, CheckCircle, AlertTriangle, ShieldCheck, TrendingUp,
-  Clock, BarChart3, PieChart as PieChartIcon, Sun, Moon
+  Clock, BarChart3, Sun, Moon
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line
+  ResponsiveContainer, LineChart, Line
 } from 'recharts';
 import RiskCurveGraph from '../components/dashboard/RiskCurveGraph';
 import { io } from 'socket.io-client';
@@ -191,12 +191,6 @@ const AdminDashboard = () => {
 
   const switchNav = (id) => { setNav(id); setSidebarOpen(false); };
 
-  const pie = stats ? [
-    { name: 'Low', value: stats.riskDistribution.low, color: 'var(--green)' },
-    { name: 'Medium', value: stats.riskDistribution.medium, color: 'var(--amber)' },
-    { name: 'High', value: stats.riskDistribution.high, color: 'var(--red)' },
-  ].filter(d => d.value > 0) : [];
-
   const sp1 = [{ v: 2 }, { v: 3 }, { v: 5 }, { v: 4 }, { v: 6 }, { v: stats?.totalUsers || 7 }];
   const sp2 = [{ v: 1 }, { v: 4 }, { v: 2 }, { v: 5 }, { v: stats?.recentLogins || 4 }];
   const sp3 = [{ v: 0 }, { v: 1 }, { v: 0 }, { v: 2 }, { v: stats?.blockedSessions || 0 }];
@@ -358,7 +352,7 @@ const AdminDashboard = () => {
 
               {/* Risk Trend */}
               <div style={{ ...glass, padding: 0, overflow: 'hidden' }}>
-                <SectionHeader icon={TrendingUp} title="Risk Score Trend" subtitle="All users \u00b7 live updates" color="var(--red)" bgColor="rgba(239,68,68,0.1)"
+                <SectionHeader icon={TrendingUp} title="Risk Score Trend" subtitle="All users · live updates" color="var(--red)" bgColor="rgba(239,68,68,0.1)"
                   action={
                     <div className="flex items-center gap-1.5">
                       <div className="dot-pulse" style={{ background: 'var(--red)' }} />
@@ -372,9 +366,9 @@ const AdminDashboard = () => {
               </div>
 
               {/* Charts row */}
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              <div>
                 {/* Hourly Logins */}
-                <div className="lg:col-span-3" style={{ ...glass, padding: 0, overflow: 'hidden' }}>
+                <div style={{ ...glass, padding: 0, overflow: 'hidden' }}>
                   <SectionHeader icon={BarChart3} title="Hourly Logins" subtitle="Last 24 hours" color="var(--cyan)" bgColor="rgba(6,182,212,0.1)" />
                   <div className="p-4">
                     {(() => {
@@ -416,38 +410,6 @@ const AdminDashboard = () => {
                         </div>
                       );
                     })()}
-                  </div>
-                </div>
-
-                {/* Risk Distribution */}
-                <div className="lg:col-span-2" style={{ ...glass, padding: 0, overflow: 'hidden' }}>
-                  <SectionHeader icon={PieChartIcon} title="Risk Distribution" subtitle="By severity level" color="var(--violet)" bgColor="rgba(139,92,246,0.1)" />
-                  <div className="p-4">
-                    {pie.length > 0 ? (
-                      <>
-                        <div style={{ width: '100%', height: 130 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart><Pie data={pie} cx="50%" cy="50%" innerRadius={35} outerRadius={55} dataKey="value" strokeWidth={0}>{pie.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie></PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="space-y-2 mt-2">
-                          {pie.map(d => (
-                            <div key={d.name} className="flex items-center justify-between text-[11px]">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
-                                <span style={{ color: 'var(--text2)' }}>{d.name}</span>
-                              </div>
-                              <span style={{ fontFamily: 'var(--mono)' }}>{d.value}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-10">
-                        <Activity className="w-6 h-6 mb-2" style={{ color: 'var(--muted2)' }} />
-                        <p className="text-xs" style={{ color: 'var(--muted)' }}>No risk data yet</p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
