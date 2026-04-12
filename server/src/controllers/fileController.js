@@ -154,6 +154,7 @@ const downloadFile = async (req, res) => {
   try {
     const { fileId } = req.params;
     const user = req.user;
+    const inline = req.query.inline === '1';
 
     const file = await File.findOne({
       _id: fileId,
@@ -183,9 +184,9 @@ const downloadFile = async (req, res) => {
       });
     }
 
-    // Bulk download detection
+    // Bulk download detection (skip for inline preview requests)
     const redis = getRedis();
-    if (redis) {
+    if (redis && !inline) {
       const downloadKey = `downloads:${user._id}`;
       const recentDownloads = await redis.incr(downloadKey);
       if (recentDownloads === 1) {
@@ -268,35 +269,34 @@ const downloadFile = async (req, res) => {
       }
     }
 
-    // Update file metadata
-    await File.findByIdAndUpdate(file._id, {
-      $inc: { downloadCount: 1 },
-      lastAccessedAt: new Date(),
-      lastAccessedBy: user._id,
-    });
-
-    // Audit log
-    await createAuditLog({
-      userId: user._id,
-      action: 'file_download',
-      ipAddress: req.clientIP,
-      riskScore: req.riskData?.score,
-      riskLevel: req.riskData?.level,
-      details: { fileId: file._id, fileName: file.originalName },
-    });
-
-    // Emit risk update for admin graph
-    const io2 = req.app.get('io');
-    if (io2 && req.riskData) {
-      io2.to('admin-room').emit('risk-update', {
-        userId: user._id,
-        email: user.email,
-        riskScore: req.riskData.score,
-        riskLevel: req.riskData.level,
-        action: 'file_download',
-        details: file.originalName,
-        timestamp: new Date().toISOString(),
+    if (!inline) {
+      await File.findByIdAndUpdate(file._id, {
+        $inc: { downloadCount: 1 },
+        lastAccessedAt: new Date(),
+        lastAccessedBy: user._id,
       });
+
+      await createAuditLog({
+        userId: user._id,
+        action: 'file_download',
+        ipAddress: req.clientIP,
+        riskScore: req.riskData?.score,
+        riskLevel: req.riskData?.level,
+        details: { fileId: file._id, fileName: file.originalName },
+      });
+
+      const io2 = req.app.get('io');
+      if (io2 && req.riskData) {
+        io2.to('admin-room').emit('risk-update', {
+          userId: user._id,
+          email: user.email,
+          riskScore: req.riskData.score,
+          riskLevel: req.riskData.level,
+          action: 'file_download',
+          details: file.originalName,
+          timestamp: new Date().toISOString(),
+        });
+      }
     }
 
     // Encrypted files: download from Supabase, decrypt, stream back
@@ -317,7 +317,7 @@ const downloadFile = async (req, res) => {
 
       res.set({
         'Content-Type': file.mimeType || 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${encodeURIComponent(file.originalName)}"`,
+        'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${encodeURIComponent(file.originalName)}"`,
         'Content-Length': decryptedBuffer.length,
       });
       return res.send(decryptedBuffer);
