@@ -677,7 +677,8 @@ const AdminDashboard = () => {
                             style={{
                               background: lf.riskLevel === r.value ? (r.color ? `${r.color}18` : 'var(--surface3)') : 'transparent',
                               border: lf.riskLevel === r.value ? `1px solid ${r.color || 'var(--border2)'}30` : '1px solid transparent',
-                              color: lf.riskLevel === r.value ? (r.color || 'var(--text)') : 'var(--muted)',
+                              color: lf.riskLevel === r.value ? (r.color || 'var(--text)') : 'var(--text2)',
+                              fontWeight: 600,
                             }}
                           >
                             {r.color && <span className="w-1.5 h-1.5 rounded-full" style={{ background: r.color }} />}
@@ -709,11 +710,11 @@ const AdminDashboard = () => {
                         const ac = actionColor(l.action);
                         return (
                           <tr key={l.id}>
-                            <td style={{ color: 'var(--muted)', fontSize: '0.65rem', fontFamily: 'var(--mono)', whiteSpace: 'nowrap' }}>
+                            <td style={{ color: 'var(--text)', fontSize: '0.7rem', fontWeight: 600, fontFamily: 'var(--mono)', whiteSpace: 'nowrap' }}>
                               {fmtTime(l.createdAt)}
                             </td>
                             <td>
-                              <span className="text-xs" style={{ color: 'var(--text2)' }}>{l.user?.email || '\u2014'}</span>
+                              <span className="text-xs font-semibold" style={{ color: 'var(--text)' }}>{l.user?.email || '\u2014'}</span>
                             </td>
                             <td>
                               <div className="flex items-center gap-2">
@@ -723,7 +724,7 @@ const AdminDashboard = () => {
                                 </span>
                               </div>
                             </td>
-                            <td style={{ fontFamily: 'var(--mono)', color: 'var(--muted)', fontSize: '0.65rem' }}>
+                            <td style={{ fontFamily: 'var(--mono)', color: 'var(--text2)', fontSize: '0.7rem', fontWeight: 600 }}>
                               {l.ipAddress || '\u2014'}
                             </td>
                             <td className="text-center">
@@ -737,7 +738,7 @@ const AdminDashboard = () => {
                                   {l.riskScore || l.riskLevel}
                                 </span>
                               ) : (
-                                <span className="text-[10px]" style={{ color: 'var(--muted2)' }}>\u2014</span>
+                                <span className="text-[11px] font-semibold" style={{ color: 'var(--muted)' }}>\u2014</span>
                               )}
                             </td>
                             <td className="text-center">
@@ -752,7 +753,7 @@ const AdminDashboard = () => {
                   </table>
                 </div>
                 <div className="flex items-center justify-between px-4 py-2.5" style={{ borderTop: '1px solid var(--border)' }}>
-                  <span className="text-[10px]" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>
+                  <span className="text-[11px]" style={{ color: 'var(--text2)', fontFamily: 'var(--mono)', fontWeight: 600 }}>
                     Page {lp} of {lps}
                   </span>
                   <div className="flex items-center gap-1">
@@ -793,11 +794,11 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px]" style={{ color: 'var(--text2)' }}>{l.user?.email || '\u2014'}</span>
-                        <span className="text-[9px]" style={{ fontFamily: 'var(--mono)', color: 'var(--muted)' }}>{l.ipAddress || ''}</span>
+                        <span className="text-[11px] font-semibold" style={{ color: 'var(--text)' }}>{l.user?.email || '\u2014'}</span>
+                        <span className="text-[10px]" style={{ fontFamily: 'var(--mono)', color: 'var(--text2)', fontWeight: 600 }}>{l.ipAddress || ''}</span>
                       </div>
                       <div className="mt-1.5">
-                        <span className="text-[9px]" style={{ fontFamily: 'var(--mono)', color: 'var(--muted2)' }}>
+                        <span className="text-[10px]" style={{ fontFamily: 'var(--mono)', color: 'var(--text)', fontWeight: 600 }}>
                           {fmtTime(l.createdAt)}
                         </span>
                       </div>
@@ -805,7 +806,7 @@ const AdminDashboard = () => {
                   );
                 })}
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-[10px]" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>Page {lp}/{lps}</span>
+                  <span className="text-[11px]" style={{ color: 'var(--text2)', fontFamily: 'var(--mono)', fontWeight: 600 }}>Page {lp}/{lps}</span>
                   <div className="flex gap-1">
                     <button onClick={() => setLp(p => Math.max(1, p - 1))} disabled={lp <= 1} className="icon-btn p-1 disabled:opacity-20" aria-label="Previous page"><ChevronLeft className="w-3.5 h-3.5" /></button>
                     <button onClick={() => setLp(p => Math.min(lps, p + 1))} disabled={lp >= lps} className="icon-btn p-1 disabled:opacity-20" aria-label="Next page"><ChevronRight className="w-3.5 h-3.5" /></button>
