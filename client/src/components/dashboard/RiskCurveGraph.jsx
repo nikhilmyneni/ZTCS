@@ -44,8 +44,6 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
-const PIE_COLORS = ['#10b981', '#f59e0b', '#ef4444'];
-
 const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveOnly = false }) => {
   const [dataPoints, setDataPoints] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -101,7 +99,6 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
   const stroke = avg > 60 ? 'var(--red)' : avg > 30 ? 'var(--amber)' : 'var(--green)';
   const fillId = avg > 60 ? 'hg' : avg > 30 ? 'mg' : 'lg';
 
-  // Risk distribution for pie chart
   const distribution = useMemo(() => {
     if (!dataPoints.length) return [];
     const low = dataPoints.filter(p => p.score <= 30).length;
@@ -116,7 +113,6 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
 
   const total = dataPoints.length;
 
-  // Per-dot coloring based on each point's own score
   const renderDot = (props) => {
     const { cx, cy, payload } = props;
     const s = payload?.score ?? 0;
@@ -145,7 +141,6 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
 
   return (
     <div className="space-y-4">
-      {/* Risk Score Trend */}
       <div style={{
         background: 'rgba(255,255,255,0.025)', backdropFilter: 'blur(16px)',
         border: '1px solid var(--border)', borderRadius: 'var(--radius)',
@@ -157,7 +152,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
               <h3 className="text-xs font-semibold">
                 Risk Score Trend{isAdmin && <span style={{ color: 'var(--muted)', fontWeight: 400 }}> · All Users</span>}
               </h3>
-              <p className="text-[10px] mt-0.5" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--text)', fontFamily: 'var(--mono)', fontWeight: 600 }}>
                 {dataPoints.length} sessions · Avg: {avg}
               </p>
             </div>
@@ -177,8 +172,8 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
               <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ef4444" stopOpacity={0.25} /><stop offset="100%" stopColor="#ef4444" stopOpacity={0} /></linearGradient>
             </defs>
             <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-            <XAxis dataKey="time" stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
-            <YAxis domain={[0, 100]} allowDataOverflow stroke="var(--muted2)" tick={{ fontSize: 9, fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="time" stroke="var(--muted)" tick={{ fontSize: 11, fontFamily: 'var(--mono)', fill: 'var(--text)', fontWeight: 600 }} axisLine={false} tickLine={false} />
+            <YAxis domain={[0, 100]} allowDataOverflow stroke="var(--muted)" tick={{ fontSize: 11, fontFamily: 'var(--mono)', fill: 'var(--text)', fontWeight: 600 }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={30} stroke="var(--green)" strokeOpacity={0.15} />
             <ReferenceLine y={60} stroke="var(--amber)" strokeOpacity={0.15} />
@@ -189,16 +184,15 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
           {[{ c: 'var(--green)', l: 'Low <=30' }, { c: 'var(--amber)', l: 'Med <=60' }, { c: 'var(--red)', l: 'High >60' }].map(({ c, l }) => (
             <div key={l} className="flex items-center gap-1.5">
               <span className="w-3 h-[2px] rounded" style={{ background: c }} />
-              <span className="text-[9px]" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{l}</span>
+              <span className="text-[11px]" style={{ color: 'var(--text)', fontFamily: 'var(--mono)', fontWeight: 700 }}>{l}</span>
             </div>
           ))}
           {isAdmin && avg > 0 && (
-            <span className="ml-auto text-[10px] font-semibold" style={{ color: avg <= 30 ? 'var(--green)' : avg <= 60 ? 'var(--amber)' : 'var(--red)', fontFamily: 'var(--mono)' }}>Avg: {avg}</span>
+            <span className="ml-auto text-[12px] font-bold" style={{ color: avg <= 30 ? 'var(--green)' : avg <= 60 ? 'var(--amber)' : 'var(--red)', fontFamily: 'var(--mono)' }}>Avg: {avg}</span>
           )}
         </div>
       </div>
 
-      {/* Risk Distribution Pie */}
       {distribution.length > 0 && (
         <div style={{
           background: 'rgba(255,255,255,0.025)', backdropFilter: 'blur(16px)',
@@ -206,7 +200,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
           padding: '1.25rem',
         }}>
           <h3 className="text-xs font-semibold mb-1">Risk Distribution</h3>
-          <p className="text-[10px] mb-3" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>
+          <p className="text-[11px] mb-3" style={{ color: 'var(--text)', fontFamily: 'var(--mono)', fontWeight: 600 }}>
             {total} sessions analyzed
           </p>
           <ResponsiveContainer width="100%" height={160}>
@@ -224,7 +218,7 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
                 isAnimationActive
                 animationDuration={1200}
               >
-                {distribution.map((entry, i) => (
+                {distribution.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} stroke="transparent" />
                 ))}
               </Pie>
@@ -234,8 +228,8 @@ const RiskCurveGraph = ({ height = 240, showTitle = true, isAdmin = false, liveO
             {distribution.map(d => (
               <div key={d.name} className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
-                <span className="text-[10px]" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}>
-                  {d.name} <span style={{ color: 'var(--text2)', fontWeight: 600 }}>{d.value}</span>
+                <span className="text-[11px]" style={{ color: 'var(--text)', fontFamily: 'var(--mono)', fontWeight: 700 }}>
+                  {d.name} <span style={{ color: 'var(--text)', fontWeight: 800 }}>{d.value}</span>
                 </span>
               </div>
             ))}

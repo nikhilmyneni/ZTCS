@@ -396,8 +396,8 @@ const AdminDashboard = () => {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -15 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                              <XAxis dataKey="hour" stroke="var(--muted2)" tick={{ fontSize: 9, fill: 'var(--muted)' }} axisLine={false} tickLine={false} interval={2} />
-                              <YAxis stroke="var(--muted2)" tick={{ fontSize: 9, fill: 'var(--muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                              <XAxis dataKey="hour" stroke="var(--muted)" tick={{ fontSize: 11, fill: 'var(--text)', fontWeight: 600 }} axisLine={false} tickLine={false} interval={2} />
+                              <YAxis stroke="var(--muted)" tick={{ fontSize: 11, fill: 'var(--text)', fontWeight: 600 }} axisLine={false} tickLine={false} allowDecimals={false} />
                               <Tooltip content={<CTip />} />
                               <Bar dataKey="logins" fill="var(--cyan)" radius={[4, 4, 0, 0]} barSize={14} />
                             </BarChart>
