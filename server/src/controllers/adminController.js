@@ -315,17 +315,36 @@ const exportAuditCSV = async (req, res) => {
       .limit(5000)
       .populate('userId', 'email name');
 
-    // Build CSV manually (avoid json2csv complexity)
-    const header = 'Timestamp,User Email,Action,IP Address,Risk Score,Risk Level,Success\n';
-    const rows = logs.map((l) => {
-      const email = l.userId?.email || 'N/A';
-      const ts = l.createdAt?.toISOString() || '';
-      return `${ts},${email},${l.action},${l.ipAddress || ''},${l.riskScore || ''},${l.riskLevel || ''},${l.success}`;
-    }).join('\n');
+    const csvField = (v) => {
+      if (v === null || v === undefined) return '""';
+      const s = String(v).replace(/"/g, '""');
+      return `"${s}"`;
+    };
+    const fmtTs = (d) => {
+      if (!d) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
 
-    res.setHeader('Content-Type', 'text/csv');
+    const headers = ['Timestamp', 'User Email', 'User Name', 'Action', 'IP Address', 'Risk Score', 'Risk Level', 'Success'];
+    const lines = [headers.map(csvField).join(',')];
+    for (const l of logs) {
+      lines.push([
+        fmtTs(l.createdAt),
+        l.userId?.email || '',
+        l.userId?.name || '',
+        l.action || '',
+        l.ipAddress || '',
+        l.riskScore ?? '',
+        l.riskLevel || '',
+        l.success ? 'Yes' : 'No',
+      ].map(csvField).join(','));
+    }
+    const body = '\uFEFF' + lines.join('\r\n') + '\r\n';
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename=audit_logs_${Date.now()}.csv`);
-    res.send(header + rows);
+    res.send(body);
   } catch (error) {
     console.error('CSV export error:', error);
     res.status(500).json({ success: false, message: 'Export failed.' });

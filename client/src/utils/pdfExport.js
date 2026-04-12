@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 /**
  * Generate a styled PDF security audit report.
@@ -52,7 +52,7 @@ export const generateAuditPDF = ({ stats, logs, users }) => {
       ['Risk: High', String(stats.riskDistribution?.high || 0)],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Metric', 'Value']],
       body: statRows,
@@ -83,7 +83,7 @@ export const generateAuditPDF = ({ stats, logs, users }) => {
       String(u.loginCount || 0),
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Email', 'Role', 'Status', 'Risk', 'Level', 'Logins']],
       body: userRows,
@@ -118,7 +118,7 @@ export const generateAuditPDF = ({ stats, logs, users }) => {
       l.riskLevel || '',
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Time', 'User', 'Action', 'IP', 'Score', 'Risk']],
       body: logRows,
@@ -198,7 +198,7 @@ export const generateUserActivityPDF = ({ user, activity, riskHistory, recentLog
     ['Account Created', user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : 'N/A'],
   ];
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: y,
     head: [['Field', 'Value']],
     body: userRows,
@@ -229,7 +229,7 @@ export const generateUserActivityPDF = ({ user, activity, riskHistory, recentLog
     ['Known IPs', String(activity.knownIPs || 0)],
   ];
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: y,
     head: [['Metric', 'Value']],
     body: actRows,
@@ -258,7 +258,7 @@ export const generateUserActivityPDF = ({ user, activity, riskHistory, recentLog
       (r.factors || []).join(', ') || '-',
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Time', 'Score', 'Level', 'Factors']],
       body: riskRows,
@@ -293,7 +293,7 @@ export const generateUserActivityPDF = ({ user, activity, riskHistory, recentLog
       l.riskLevel || '',
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Time', 'Action', 'IP', 'Score', 'Risk']],
       body: logRows,
