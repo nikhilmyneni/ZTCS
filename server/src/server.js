@@ -17,7 +17,6 @@ const stepUpRoutes = require('./routes/stepUpRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
-const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 const httpServer = createServer(app);
@@ -128,21 +127,12 @@ const fileUploadLimiter = rateLimit({
 });
 app.use('/api/files/upload', fileUploadLimiter);
 
-const chatLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 12,
-  message: { success: false, message: 'Please wait a moment before sending another message.' },
-  validate: { trustProxy: false },
-});
-app.use('/api/chat', chatLimiter);
-
 // ─── API Routes ───
 app.use('/api/auth', authRoutes);
 app.use('/api/stepup', stepUpRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/chat', chatRoutes);
 // Future routes will be added here:
 // app.use('/api/files', fileRoutes);       // Phase 5
 // app.use('/api/admin', adminRoutes);      // Phase 6
